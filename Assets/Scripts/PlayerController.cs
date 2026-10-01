@@ -27,6 +27,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Transform thirdPersonCameraTransform;
 
     [SerializeField] private CinemachineOrbitalFollow thirdPersonOrbitalFollow;
+    [SerializeField] private CinemachinePanTilt firstPersonPanTilt;
 
     [SerializeField] private Vector3 firstPersonCameraStandingOffset = new Vector3(0, 1.221f, 0);
     [SerializeField] private Vector3 firstPersonCameraCrouchingOffset = new Vector3(0, 0.88f, 0);
@@ -96,21 +97,30 @@ public class PlayerController : MonoBehaviour
         cameraResetAction.Disable();
     }
 
+    private void Start()
+    {
+        SetCursorLock(true);
+    }
+
     private void Update()
     {
         moveInput = moveAction.ReadValue<Vector2>();
         moveInput = Vector2.ClampMagnitude(moveInput, 1);
 
+        if (Keyboard.current.escapeKey.wasPressedThisFrame)
+        {
+            SetCursorLock(false);
+        }
+        else if (Mouse.current.leftButton.wasPressedThisFrame &&
+            Cursor.lockState != CursorLockMode.Locked)
+        {
+            SetCursorLock(true);
+        }
+
         if (IsGrounded)
         {
             if (crouchAction.WasPressedThisFrame())
-            {
-                isCrouching = true;
-            }
-            else if (crouchAction.WasReleasedThisFrame())
-            {
-                isCrouching = false;
-            }
+                isCrouching = !isCrouching;
 
             isSprinting = !isCrouching && sprintAction.IsPressed();
         }
@@ -197,19 +207,26 @@ public class PlayerController : MonoBehaviour
 
     private void SetCameraPerspective(bool newIsFirstPerson)
     {
-        firstPersonCamera.enabled = newIsFirstPerson;
-        thirdPersonCamera.enabled = !newIsFirstPerson;
-        isFirstPerson = newIsFirstPerson;
+        float targetYaw = transform.eulerAngles.y;
 
-        if (isFirstPerson)
+        if (newIsFirstPerson)
         {
-            thirdPersonOrbitalFollow.RadialAxis.Value = thirdPersonOrbitalFollow.RadialAxis.Range.x;
+            // Face the same direction as the player.
+            firstPersonPanTilt.PanAxis.Value = targetYaw;
             isResettingCamera = false;
         }
         else
         {
-            thirdPersonOrbitalFollow.RadialAxis.Value = thirdPersonOrbitalFollow.RadialAxis.Center;
+            // Position the camera directly behind the player.
+            thirdPersonOrbitalFollow.HorizontalAxis.Value = targetYaw;
         }
+
+        firstPersonCamera.enabled = newIsFirstPerson;
+        thirdPersonCamera.enabled = !newIsFirstPerson;
+        isFirstPerson = newIsFirstPerson;
+
+        thirdPersonOrbitalFollow.RadialAxis.Value =
+            thirdPersonOrbitalFollow.RadialAxis.Range.x;
     }
 
     private void HandleFirstPersonMovement()
@@ -331,5 +348,19 @@ public class PlayerController : MonoBehaviour
             0.15f,
             Time.fixedDeltaTime
         );
+    }
+
+    private void SetCursorLock(bool isLocked)
+    {
+        if (isLocked)
+        {
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+        }
+        else
+        {
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+        }
     }
 }
