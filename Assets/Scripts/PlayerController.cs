@@ -4,8 +4,6 @@ using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
-    [SerializeField] private CinemachineOrbitalFollow thirdPersonOrbitalFollow;
-    [SerializeField] private Transform thirdPersonCameraTransform;
     [SerializeField] private InputActionAsset inputActions;
 
     [Header("Movement")]
@@ -13,31 +11,55 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float sprintSpeed = 6f;
     [SerializeField] private float crouchSpeed = 1.5f;
     [SerializeField] private float gravity = -9.81f;
+    [SerializeField] private float maxFallSpeed = 100f;
     [SerializeField] private float walkRotationSpeed = 5f;
     [SerializeField] private float sprintRotationSpeed = 10f;
 
     [Header("Camera")]
+    [SerializeField] private bool isFirstPerson = true;
     [SerializeField] private float cameraResetSpeed = 180f;
+    [SerializeField] private float zoomInputThreshold = 0.05f;
+
+    [SerializeField] private CinemachineCamera firstPersonCamera;
+    [SerializeField] private CinemachineCamera thirdPersonCamera;
+
+    [SerializeField] private Transform firstPersonCameraTransform;
+    [SerializeField] private Transform thirdPersonCameraTransform;
+
+    [SerializeField] private CinemachineOrbitalFollow thirdPersonOrbitalFollow;
+
+    [SerializeField] private Vector3 firstPersonCameraStandingOffset = new Vector3(0, 1.221f, 0);
+    [SerializeField] private Vector3 firstPersonCameraCrouchingOffset = new Vector3(0, 0.88f, 0);
+    [Header("")]
 
     private Animator animator;
     private CharacterController characterController;
 
     private InputAction moveAction;
     private InputAction lookAction;
+    private InputAction zoomAction;
     private InputAction crouchAction;
     private InputAction sprintAction;
     private InputAction cameraResetAction;
 
-    private bool isGrounded;
+    private bool IsGrounded => characterController.isGrounded;
     private bool isCrouching;
     private bool isSprinting;
 
-    Vector2 moveInput;
-    private float verticalVelocity;
+    private Vector2 moveInput;
+    private Vector3 playerVelocity;
+    private Vector3 HorizontalVelocity =>
+        new Vector3(playerVelocity.x, 0f, playerVelocity.z);
+    private float VerticalVelocity => playerVelocity.y;
 
     private bool isResettingCamera;
     private Vector3 resetCameraForward;
     private Vector3 resetCameraRight;
+    private bool IsThirdPersonCameraFullyZoomedIn =>
+        Mathf.Approximately(
+            thirdPersonOrbitalFollow.RadialAxis.Value,
+            thirdPersonOrbitalFollow.RadialAxis.Range.x
+        );
 
     private void Awake()
     {
@@ -46,15 +68,19 @@ public class PlayerController : MonoBehaviour
 
         moveAction = inputActions.FindAction("Player/Move");
         lookAction = inputActions.FindAction("Player/CameraLook");
+        zoomAction = inputActions.FindAction("Player/CameraZoom");
         crouchAction = inputActions.FindAction("Player/Crouch");
         sprintAction = inputActions.FindAction("Player/Sprint");
         cameraResetAction = inputActions.FindAction("Player/CameraReset");
+    
+        SetCameraPerspective(isFirstPerson);
     }
 
     private void OnEnable()
     {
         moveAction.Enable();
         lookAction.Enable();
+        zoomAction.Enable();
         crouchAction.Enable();
         sprintAction.Enable();
         cameraResetAction.Enable();
@@ -64,6 +90,7 @@ public class PlayerController : MonoBehaviour
     {
         moveAction.Disable();
         lookAction.Disable();
+        zoomAction.Disable();
         crouchAction.Disable();
         sprintAction.Disable();
         cameraResetAction.Disable();
@@ -74,7 +101,7 @@ public class PlayerController : MonoBehaviour
         moveInput = moveAction.ReadValue<Vector2>();
         moveInput = Vector2.ClampMagnitude(moveInput, 1);
 
-        if (isGrounded)
+        if (IsGrounded)
         {
             if (crouchAction.WasPressedThisFrame())
             {
@@ -88,99 +115,42 @@ public class PlayerController : MonoBehaviour
             isSprinting = !isCrouching && sprintAction.IsPressed();
         }
 
-        if (cameraResetAction.WasPressedThisFrame())
-        {
-            ResetCamera();
-        }
+        // Check for third person mode inputs.
+        float zoomInput = zoomAction.ReadValue<float>();
 
+        if (!isFirstPerson)
+        {
+            if (cameraResetAction.WasPressedThisFrame())
+                ResetCamera();
+
+            // first person -> third person
+            if (!isResettingCamera && zoomInput > zoomInputThreshold && IsThirdPersonCameraFullyZoomedIn)
+                ToggleCameraPerspective();
+        }
+        else
+        {
+            // third person -> first person
+            if (zoomInput < -zoomInputThreshold)
+                ToggleCameraPerspective();     
+        }
         UpdateCameraReset();
     }
 
     private void FixedUpdate()
     {
-        Vector3 cameraForward = thirdPersonCameraTransform.forward;
-        Vector3 cameraRight = thirdPersonCameraTransform.right;
-
-        cameraForward.y = 0f;
-        cameraRight.y = 0f;
-
-        cameraForward.Normalize();
-        cameraRight.Normalize();
-
-        // Ground movement
-        Vector3 move;
-
-        if (isResettingCamera)
+        if (isFirstPerson)
         {
-            move =
-                resetCameraRight * moveInput.x +
-                resetCameraForward * moveInput.y;
+            HandleFirstPersonMovement();
         }
         else
         {
-            move =
-                cameraRight * moveInput.x +
-                cameraForward * moveInput.y;
+            HandleThirdPersonMovement();
         }
 
-        float rotationSpeed = isSprinting ? sprintRotationSpeed : walkRotationSpeed;
+        ApplyGravity();
+        UpdateAnimation();
 
-        if (move.sqrMagnitude > 0.001f)
-        {
-            Quaternion targetRotation = Quaternion.LookRotation(move);
-
-            transform.rotation = Quaternion.Slerp(
-                transform.rotation,
-                targetRotation,
-                rotationSpeed * Time.fixedDeltaTime
-            );
-        }
-
-        float speed;
-        float animationSpeed;
-
-        if (isCrouching)
-        {
-            animator.SetBool("IsSneaking", true);
-            animationSpeed = move.magnitude;
-            speed = crouchSpeed;
-        }
-        else if (isSprinting)
-        {
-            animator.SetBool("IsSneaking", false);
-            animationSpeed = move.magnitude;
-            speed = sprintSpeed;
-        }
-        else
-        {
-            animator.SetBool("IsSneaking", false);
-            animationSpeed = move.magnitude * 0.5f;
-            speed = walkSpeed;
-        }
-
-        animator.SetFloat(
-            "MoveSpeed",
-            animationSpeed,
-            0.15f,
-            Time.fixedDeltaTime
-        );
-
-        move *= speed;
-
-        if (isGrounded)
-        {
-            // Apply a small downward force to keep the controller grounded.
-            verticalVelocity = -2f;
-        }
-        else
-        {
-            verticalVelocity += gravity * Time.fixedDeltaTime;
-        }
-
-        move.y = verticalVelocity;
-
-        characterController.Move(move * Time.fixedDeltaTime);
-        isGrounded = characterController.isGrounded;
+        characterController.Move(playerVelocity * Time.fixedDeltaTime);
     }
 
     private void ResetCamera()
@@ -200,7 +170,7 @@ public class PlayerController : MonoBehaviour
 
     private void UpdateCameraReset()
     {
-        if (!isResettingCamera)
+        if (!isResettingCamera || isFirstPerson)
             return;
 
         float targetYaw = transform.eulerAngles.y;
@@ -218,5 +188,148 @@ public class PlayerController : MonoBehaviour
             thirdPersonOrbitalFollow.HorizontalAxis.Value = targetYaw;
             isResettingCamera = false;
         }
+    }
+
+    private void ToggleCameraPerspective()
+    {
+        SetCameraPerspective(!isFirstPerson);
+    }
+
+    private void SetCameraPerspective(bool newIsFirstPerson)
+    {
+        firstPersonCamera.enabled = newIsFirstPerson;
+        thirdPersonCamera.enabled = !newIsFirstPerson;
+        isFirstPerson = newIsFirstPerson;
+
+        if (isFirstPerson)
+        {
+            thirdPersonOrbitalFollow.RadialAxis.Value = thirdPersonOrbitalFollow.RadialAxis.Range.x;
+            isResettingCamera = false;
+        }
+        else
+        {
+            thirdPersonOrbitalFollow.RadialAxis.Value = thirdPersonOrbitalFollow.RadialAxis.Center;
+        }
+    }
+
+    private void HandleFirstPersonMovement()
+    {
+        Vector3 cameraForward = firstPersonCameraTransform.forward;
+        Vector3 cameraRight = firstPersonCameraTransform.right;
+
+        cameraForward.y = 0f;
+        cameraRight.y = 0f;
+
+        cameraForward.Normalize();
+        cameraRight.Normalize();
+        
+        Vector3 moveDirection = cameraRight * moveInput.x + cameraForward * moveInput.y;
+        moveDirection *= GetMovementSpeed();
+
+        playerVelocity.x = moveDirection.x;
+        playerVelocity.z = moveDirection.z;
+
+        float rotationSpeed = isSprinting ? sprintRotationSpeed : walkRotationSpeed;
+
+        if (HorizontalVelocity.sqrMagnitude > 0.001f)
+        {
+            Quaternion targetRotation = Quaternion.LookRotation(HorizontalVelocity);
+
+            transform.rotation = Quaternion.Slerp(
+                transform.rotation,
+                targetRotation,
+                rotationSpeed * Time.fixedDeltaTime
+            );
+        }
+    }
+
+    private void HandleThirdPersonMovement()
+    {
+        Vector3 cameraForward = thirdPersonCameraTransform.forward;
+        Vector3 cameraRight = thirdPersonCameraTransform.right;
+
+        cameraForward.y = 0f;
+        cameraRight.y = 0f;
+
+        cameraForward.Normalize();
+        cameraRight.Normalize();
+
+        if (isResettingCamera)
+        {
+            // Preserve original input velocity while camera is in reset transition. 
+            Vector3 moveDirection = resetCameraRight * moveInput.x + resetCameraForward * moveInput.y;
+            moveDirection *= GetMovementSpeed();
+
+            playerVelocity.x = moveDirection.x;
+            playerVelocity.z = moveDirection.z;
+        }
+        else
+        {
+            Vector3 moveDirection = cameraRight * moveInput.x + cameraForward * moveInput.y;
+            moveDirection *= GetMovementSpeed();
+
+            playerVelocity.x = moveDirection.x;
+            playerVelocity.z = moveDirection.z;
+        }
+
+        float rotationSpeed = isSprinting ? sprintRotationSpeed : walkRotationSpeed;
+
+        if (HorizontalVelocity.sqrMagnitude > 0.001f)
+        {
+            Quaternion targetRotation = Quaternion.LookRotation(HorizontalVelocity);
+
+            transform.rotation = Quaternion.Slerp(
+                transform.rotation,
+                targetRotation,
+                rotationSpeed * Time.fixedDeltaTime
+            );
+        }
+    }
+
+    private float GetMovementSpeed()
+    {
+        if (isCrouching)
+            return crouchSpeed;
+
+        if (isSprinting)
+            return sprintSpeed;
+
+        return walkSpeed;
+    }
+
+    private void ApplyGravity()
+    {
+        if (IsGrounded)
+        {
+            // Apply a small downward force to keep the controller grounded.
+            playerVelocity.y = -2f;
+        }
+        else
+        {
+            playerVelocity.y += gravity * Time.fixedDeltaTime;
+            if (playerVelocity.y < -maxFallSpeed)
+            {
+                playerVelocity.y = -maxFallSpeed;
+            }
+        }
+    }
+
+    private void UpdateAnimation()
+    {
+        animator.SetBool("IsSneaking", isCrouching);
+
+        float animationSpeed = HorizontalVelocity.magnitude / GetMovementSpeed();
+
+        if (!isCrouching && !isSprinting)
+        {
+            animationSpeed *= 0.5f;
+        }
+
+        animator.SetFloat(
+            "MoveSpeed",
+            animationSpeed,
+            0.15f,
+            Time.fixedDeltaTime
+        );
     }
 }
