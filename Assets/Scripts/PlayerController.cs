@@ -4,6 +4,7 @@ using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
+    [SerializeField] private SkinnedMeshRenderer playerMeshRenderer;
     [SerializeField] private InputActionAsset inputActions;
 
     [Header("Movement")]
@@ -20,6 +21,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float cameraResetSpeed = 180f;
     [SerializeField] private float zoomInputThreshold = 0.05f;
 
+    [SerializeField] private CinemachineBrain cinemachineBrain;
     [SerializeField] private CinemachineCamera firstPersonCamera;
     [SerializeField] private CinemachineCamera thirdPersonCamera;
 
@@ -29,9 +31,17 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private CinemachineOrbitalFollow thirdPersonOrbitalFollow;
     [SerializeField] private CinemachinePanTilt firstPersonPanTilt;
 
-    [SerializeField] private Vector3 firstPersonCameraStandingOffset = new Vector3(0, 1.221f, 0);
-    [SerializeField] private Vector3 firstPersonCameraCrouchingOffset = new Vector3(0, 0.88f, 0);
-    [Header("")]
+    [SerializeField] private Transform firstPersonCameraTargetTransform;
+    [SerializeField]
+    private Vector3 firstPersonCameraStandingOffset =
+        new Vector3(0, 1.595f, 0);
+    [SerializeField]
+    private Vector3 firstPersonCameraCrouchingOffset =
+        new Vector3(0, 1f, 0);
+    [SerializeField] private float firstPersonCameraCrouchSpeed = 5f;
+
+    [SerializeField] private float thirdPersonMinPitch = -30f;
+    [SerializeField] private float thirdPersonMaxPitch = 60f;
 
     private Animator animator;
     private CharacterController characterController;
@@ -49,13 +59,19 @@ public class PlayerController : MonoBehaviour
 
     private Vector2 moveInput;
     private Vector3 playerVelocity;
+
     private Vector3 HorizontalVelocity =>
         new Vector3(playerVelocity.x, 0f, playerVelocity.z);
+
     private float VerticalVelocity => playerVelocity.y;
 
     private bool isResettingCamera;
+    private bool hasStartedPerspectiveBlend;
+    private bool isChangingPerspective;
+
     private Vector3 resetCameraForward;
     private Vector3 resetCameraRight;
+
     private bool IsThirdPersonCameraFullyZoomedIn =>
         Mathf.Approximately(
             thirdPersonOrbitalFollow.RadialAxis.Value,
@@ -73,8 +89,8 @@ public class PlayerController : MonoBehaviour
         crouchAction = inputActions.FindAction("Player/Crouch");
         sprintAction = inputActions.FindAction("Player/Sprint");
         cameraResetAction = inputActions.FindAction("Player/CameraReset");
-    
-        SetCameraPerspective(isFirstPerson);
+
+        SetCameraPerspective(isFirstPerson, true);
     }
 
     private void OnEnable()
@@ -100,6 +116,12 @@ public class PlayerController : MonoBehaviour
     private void Start()
     {
         SetCursorLock(true);
+
+        // Set the initial position immediately.
+        firstPersonCameraTargetTransform.localPosition =
+            isCrouching
+                ? firstPersonCameraCrouchingOffset
+                : firstPersonCameraStandingOffset;
     }
 
     private void Update()
@@ -112,7 +134,7 @@ public class PlayerController : MonoBehaviour
             SetCursorLock(false);
         }
         else if (Mouse.current.leftButton.wasPressedThisFrame &&
-            Cursor.lockState != CursorLockMode.Locked)
+                 Cursor.lockState != CursorLockMode.Locked)
         {
             SetCursorLock(true);
         }
@@ -125,7 +147,8 @@ public class PlayerController : MonoBehaviour
             isSprinting = !isCrouching && sprintAction.IsPressed();
         }
 
-        // Check for third person mode inputs.
+        UpdateFirstPersonCameraTarget();
+
         float zoomInput = zoomAction.ReadValue<float>();
 
         if (!isFirstPerson)
@@ -133,29 +156,31 @@ public class PlayerController : MonoBehaviour
             if (cameraResetAction.WasPressedThisFrame())
                 ResetCamera();
 
-            // first person -> third person
-            if (!isResettingCamera && zoomInput > zoomInputThreshold && IsThirdPersonCameraFullyZoomedIn)
+            // Third person -> first person.
+            if (!isResettingCamera &&
+                zoomInput > zoomInputThreshold &&
+                IsThirdPersonCameraFullyZoomedIn)
+            {
                 ToggleCameraPerspective();
+            }
         }
         else
         {
-            // third person -> first person
+            // First person -> third person.
             if (zoomInput < -zoomInputThreshold)
-                ToggleCameraPerspective();     
+                ToggleCameraPerspective();
         }
+
+        UpdatePerspectiveTransition();
         UpdateCameraReset();
     }
 
     private void FixedUpdate()
     {
         if (isFirstPerson)
-        {
             HandleFirstPersonMovement();
-        }
         else
-        {
             HandleThirdPersonMovement();
-        }
 
         ApplyGravity();
         UpdateAnimation();
@@ -185,19 +210,35 @@ public class PlayerController : MonoBehaviour
 
         float targetYaw = transform.eulerAngles.y;
 
-        thirdPersonOrbitalFollow.HorizontalAxis.Value = Mathf.MoveTowardsAngle(
-            thirdPersonOrbitalFollow.HorizontalAxis.Value,
-            targetYaw,
-            cameraResetSpeed * Time.deltaTime
-        );
+        thirdPersonOrbitalFollow.HorizontalAxis.Value =
+            Mathf.MoveTowardsAngle(
+                thirdPersonOrbitalFollow.HorizontalAxis.Value,
+                targetYaw,
+                cameraResetSpeed * Time.deltaTime
+            );
 
         if (Mathf.Abs(Mathf.DeltaAngle(
-            thirdPersonOrbitalFollow.HorizontalAxis.Value,
-            targetYaw)) < 0.1f)
+                thirdPersonOrbitalFollow.HorizontalAxis.Value,
+                targetYaw)) < 0.1f)
         {
             thirdPersonOrbitalFollow.HorizontalAxis.Value = targetYaw;
             isResettingCamera = false;
         }
+    }
+
+    private void UpdateFirstPersonCameraTarget()
+    {
+        Vector3 targetPosition =
+            isCrouching
+                ? firstPersonCameraCrouchingOffset
+                : firstPersonCameraStandingOffset;
+
+        firstPersonCameraTargetTransform.localPosition =
+            Vector3.MoveTowards(
+                firstPersonCameraTargetTransform.localPosition,
+                targetPosition,
+                firstPersonCameraCrouchSpeed * Time.deltaTime
+            );
     }
 
     private void ToggleCameraPerspective()
@@ -205,28 +246,119 @@ public class PlayerController : MonoBehaviour
         SetCameraPerspective(!isFirstPerson);
     }
 
-    private void SetCameraPerspective(bool newIsFirstPerson)
+    private void SetCameraPerspective(
+        bool newIsFirstPerson,
+        bool isInitializing = false)
     {
         float targetYaw = transform.eulerAngles.y;
 
         if (newIsFirstPerson)
         {
-            // Face the same direction as the player.
-            firstPersonPanTilt.PanAxis.Value = targetYaw;
+            if (!isInitializing)
+            {
+                // Preserve the actual third-person viewing direction.
+                Vector3 cameraForward =
+                    thirdPersonCameraTransform.forward;
+
+                float pitch =
+                    Mathf.Asin(cameraForward.y) * Mathf.Rad2Deg;
+
+                Vector3 flatCameraForward = cameraForward;
+                flatCameraForward.y = 0f;
+
+                if (flatCameraForward.sqrMagnitude > 0.001f)
+                {
+                    flatCameraForward.Normalize();
+
+                    transform.rotation =
+                        Quaternion.LookRotation(flatCameraForward);
+                }
+
+                firstPersonPanTilt.PanAxis.Value =
+                    transform.eulerAngles.y;
+
+                firstPersonPanTilt.TiltAxis.Value = -pitch;
+            }
+
             isResettingCamera = false;
         }
         else
         {
-            // Position the camera directly behind the player.
-            thirdPersonOrbitalFollow.HorizontalAxis.Value = targetYaw;
+            // Position the third-person camera behind the player.
+            thirdPersonOrbitalFollow.HorizontalAxis.Value =
+                targetYaw;
+
+            if (!isInitializing)
+            {
+                // Use the actual first-person viewing direction,
+                // rather than the PanTilt control value.
+                Vector3 cameraForward =
+                    firstPersonCameraTransform.forward;
+
+                float pitch =
+                    Mathf.Asin(cameraForward.y) * Mathf.Rad2Deg;
+
+                // Convert the actual FPS pitch to a position within
+                // the allowed third-person vertical orbit.
+                float normalizedPitch =
+                    Mathf.InverseLerp(
+                        thirdPersonMinPitch,
+                        thirdPersonMaxPitch,
+                        pitch
+                    );
+
+                thirdPersonOrbitalFollow.VerticalAxis.Value =
+                    Mathf.Lerp(
+                        thirdPersonOrbitalFollow.VerticalAxis.Range.x,
+                        thirdPersonOrbitalFollow.VerticalAxis.Range.y,
+                        normalizedPitch
+                    );
+            }
+
+            // Make the body immediately visible as the camera pulls away.
+            playerMeshRenderer.enabled = true;
         }
 
         firstPersonCamera.enabled = newIsFirstPerson;
         thirdPersonCamera.enabled = !newIsFirstPerson;
-        isFirstPerson = newIsFirstPerson;
 
         thirdPersonOrbitalFollow.RadialAxis.Value =
             thirdPersonOrbitalFollow.RadialAxis.Range.x;
+
+        isFirstPerson = newIsFirstPerson;
+
+        if (isInitializing)
+        {
+            playerMeshRenderer.enabled = !isFirstPerson;
+            isChangingPerspective = false;
+            hasStartedPerspectiveBlend = false;
+        }
+        else
+        {
+            isChangingPerspective = true;
+            hasStartedPerspectiveBlend = false;
+        }
+    }
+
+    private void UpdatePerspectiveTransition()
+    {
+        if (!isChangingPerspective)
+            return;
+
+        if (cinemachineBrain.IsBlending)
+        {
+            hasStartedPerspectiveBlend = true;
+            return;
+        }
+
+        if (!hasStartedPerspectiveBlend)
+            return;
+
+        if (isFirstPerson)
+            playerMeshRenderer.enabled = false;
+
+        isChangingPerspective = false;
+        hasStartedPerspectiveBlend = false;
     }
 
     private void HandleFirstPersonMovement()
@@ -239,25 +371,18 @@ public class PlayerController : MonoBehaviour
 
         cameraForward.Normalize();
         cameraRight.Normalize();
-        
-        Vector3 moveDirection = cameraRight * moveInput.x + cameraForward * moveInput.y;
+
+        Vector3 moveDirection =
+            cameraRight * moveInput.x +
+            cameraForward * moveInput.y;
+
         moveDirection *= GetMovementSpeed();
 
         playerVelocity.x = moveDirection.x;
         playerVelocity.z = moveDirection.z;
 
-        float rotationSpeed = isSprinting ? sprintRotationSpeed : walkRotationSpeed;
-
-        if (HorizontalVelocity.sqrMagnitude > 0.001f)
-        {
-            Quaternion targetRotation = Quaternion.LookRotation(HorizontalVelocity);
-
-            transform.rotation = Quaternion.Slerp(
-                transform.rotation,
-                targetRotation,
-                rotationSpeed * Time.fixedDeltaTime
-            );
-        }
+        if (cameraForward.sqrMagnitude > 0.001f)
+            transform.rotation = Quaternion.LookRotation(cameraForward);
     }
 
     private void HandleThirdPersonMovement()
@@ -273,8 +398,12 @@ public class PlayerController : MonoBehaviour
 
         if (isResettingCamera)
         {
-            // Preserve original input velocity while camera is in reset transition. 
-            Vector3 moveDirection = resetCameraRight * moveInput.x + resetCameraForward * moveInput.y;
+            // Preserve original input velocity while camera
+            // is in the reset transition.
+            Vector3 moveDirection =
+                resetCameraRight * moveInput.x +
+                resetCameraForward * moveInput.y;
+
             moveDirection *= GetMovementSpeed();
 
             playerVelocity.x = moveDirection.x;
@@ -282,18 +411,25 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
-            Vector3 moveDirection = cameraRight * moveInput.x + cameraForward * moveInput.y;
+            Vector3 moveDirection =
+                cameraRight * moveInput.x +
+                cameraForward * moveInput.y;
+
             moveDirection *= GetMovementSpeed();
 
             playerVelocity.x = moveDirection.x;
             playerVelocity.z = moveDirection.z;
         }
 
-        float rotationSpeed = isSprinting ? sprintRotationSpeed : walkRotationSpeed;
+        float rotationSpeed =
+            isSprinting
+                ? sprintRotationSpeed
+                : walkRotationSpeed;
 
         if (HorizontalVelocity.sqrMagnitude > 0.001f)
         {
-            Quaternion targetRotation = Quaternion.LookRotation(HorizontalVelocity);
+            Quaternion targetRotation =
+                Quaternion.LookRotation(HorizontalVelocity);
 
             transform.rotation = Quaternion.Slerp(
                 transform.rotation,
@@ -324,10 +460,9 @@ public class PlayerController : MonoBehaviour
         else
         {
             playerVelocity.y += gravity * Time.fixedDeltaTime;
+
             if (playerVelocity.y < -maxFallSpeed)
-            {
                 playerVelocity.y = -maxFallSpeed;
-            }
         }
     }
 
@@ -335,12 +470,11 @@ public class PlayerController : MonoBehaviour
     {
         animator.SetBool("IsSneaking", isCrouching);
 
-        float animationSpeed = HorizontalVelocity.magnitude / GetMovementSpeed();
+        float animationSpeed =
+            HorizontalVelocity.magnitude / GetMovementSpeed();
 
         if (!isCrouching && !isSprinting)
-        {
             animationSpeed *= 0.5f;
-        }
 
         animator.SetFloat(
             "MoveSpeed",
