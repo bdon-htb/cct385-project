@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 86e25bb1994dd764d9c0a296d7069ae7
+guid: 94c7a9e839e58754aa11a5c023876d38
 ModelImporter:
   serializedVersion: 24501
   internalIDToNameTable: []
@@ -35,7 +35,7 @@ ModelImporter:
       name: FallingToLanding
       takeName: mixamo.com
       internalID: -203655887218126122
-      firstFrame: 0
+      firstFrame: 4.3
       lastFrame: 32
       wrapMode: 0
       orientationOffsetY: 0
@@ -549,18 +549,18 @@ ModelImporter:
         length: 0
         modified: 0
     skeleton:
-    - name: Kachujin G Rosales(Clone)
+    - name: KachujinGRosales(Clone)
       parentName: 
       position: {x: 0, y: 0, z: 0}
       rotation: {x: 0, y: 0, z: 0, w: 1}
       scale: {x: 1, y: 1, z: 1}
     - name: Kachujin
-      parentName: Kachujin G Rosales(Clone)
+      parentName: KachujinGRosales(Clone)
       position: {x: -0, y: 0, z: 0}
       rotation: {x: 0, y: -0, z: -0, w: 1}
       scale: {x: 1, y: 1, z: 1}
     - name: mixamorig:Hips
-      parentName: Kachujin G Rosales(Clone)
+      parentName: KachujinGRosales(Clone)
       position: {x: -0.0007293723, y: 1.1404332, z: 0.010428437}
       rotation: {x: 3.6500364e-14, y: 0.000000003988351, z: -0.000001003189, w: 1}
       scale: {x: 1, y: 1, z: 1}

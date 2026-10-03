@@ -159,7 +159,7 @@ Animator:
   m_GameObject: {fileID: 7831821286766758241}
   m_Enabled: 1
   m_Avatar: {fileID: 9000000, guid: d2900edbcd4c17749afbde141b71bb32, type: 3}
-  m_Controller: {fileID: 9100000, guid: 4eaf4669ac444a7459b57538d76cab41, type: 2}
+  m_Controller: {fileID: 9100000, guid: 9feba386d0546b648a9618047922c253, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -213,10 +213,11 @@ MonoBehaviour:
   walkSpeed: 3
   sprintSpeed: 6.5
   crouchSpeed: 1.5
-  gravity: -9.81
+  gravity: 9.81
   maxFallSpeed: 100
   walkRotationSpeed: 5
   sprintRotationSpeed: 10
+  jumpForce: 5
   isFirstPerson: 1
   cameraResetSpeed: 350
   zoomInputThreshold: 0.05
@@ -227,5 +228,10 @@ MonoBehaviour:
   thirdPersonCameraTransform: {fileID: 0}
   thirdPersonOrbitalFollow: {fileID: 0}
   firstPersonPanTilt: {fileID: 0}
-  firstPersonCameraStandingOffset: {x: 0, y: 2.1, z: 0}
-  firstPersonCameraCrouchingOffset: {x: 0, y: 0.88, z: 0}
+  firstPersonCameraTargetTransform: {fileID: 8267281823744677904}
+  firstPersonCameraStandingOffset: {x: 0, y: 1.595, z: 0}
+  firstPersonCameraCrouchingOffset: {x: 0, y: 1, z: 0}
+  firstPersonCameraCrouchSpeed: 5
+  thirdPersonMinPitch: -30
+  thirdPersonMaxPitch: 60
+  fallingTimeThreshold: 0.35

@@ -11,10 +11,11 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float walkSpeed = 3f;
     [SerializeField] private float sprintSpeed = 6f;
     [SerializeField] private float crouchSpeed = 1.5f;
-    [SerializeField] private float gravity = -9.81f;
-    [SerializeField] private float maxFallSpeed = 100f;
+    [SerializeField] private float gravity = 9.81f;
+    [SerializeField] private float maxFallSpeed = 20f;
     [SerializeField] private float walkRotationSpeed = 5f;
     [SerializeField] private float sprintRotationSpeed = 10f;
+    [SerializeField] private float jumpForce = 5f;
 
     [Header("Camera")]
     [SerializeField] private bool isFirstPerson = true;
@@ -51,11 +52,14 @@ public class PlayerController : MonoBehaviour
     private InputAction zoomAction;
     private InputAction crouchAction;
     private InputAction sprintAction;
+    private InputAction jumpAction;
     private InputAction cameraResetAction;
 
     private bool IsGrounded => characterController.isGrounded;
     private bool isCrouching;
     private bool isSprinting;
+    private bool isJumping;
+    private bool hasLaunchedJump;
 
     private Vector2 moveInput;
     private Vector3 playerVelocity;
@@ -64,6 +68,9 @@ public class PlayerController : MonoBehaviour
         new Vector3(playerVelocity.x, 0f, playerVelocity.z);
 
     private float VerticalVelocity => playerVelocity.y;
+
+    private float airborneTime;
+    [SerializeField] float fallingTimeThreshold = 0.35f;
 
     private bool isResettingCamera;
     private bool hasStartedPerspectiveBlend;
@@ -88,6 +95,7 @@ public class PlayerController : MonoBehaviour
         zoomAction = inputActions.FindAction("Player/CameraZoom");
         crouchAction = inputActions.FindAction("Player/Crouch");
         sprintAction = inputActions.FindAction("Player/Sprint");
+        jumpAction = inputActions.FindAction("Player/Jump");
         cameraResetAction = inputActions.FindAction("Player/CameraReset");
 
         SetCameraPerspective(isFirstPerson, true);
@@ -100,6 +108,7 @@ public class PlayerController : MonoBehaviour
         zoomAction.Enable();
         crouchAction.Enable();
         sprintAction.Enable();
+        jumpAction.Enable();
         cameraResetAction.Enable();
     }
 
@@ -110,6 +119,7 @@ public class PlayerController : MonoBehaviour
         zoomAction.Disable();
         crouchAction.Disable();
         sprintAction.Disable();
+        jumpAction.Disable();
         cameraResetAction.Disable();
     }
 
@@ -142,7 +152,15 @@ public class PlayerController : MonoBehaviour
         if (IsGrounded)
         {
             if (crouchAction.WasPressedThisFrame())
+            {
                 isCrouching = !isCrouching;
+            }
+
+            if (jumpAction.WasPressedThisFrame())
+            {
+                isJumping = true;
+                isCrouching = false;
+            }
 
             isSprinting = !isCrouching && sprintAction.IsPressed();
         }
@@ -182,7 +200,13 @@ public class PlayerController : MonoBehaviour
         else
             HandleThirdPersonMovement();
 
-        ApplyGravity();
+        HandleJumpAndGravity();
+
+        if (IsGrounded)
+            airborneTime = 0f;
+        else
+            airborneTime += Time.fixedDeltaTime;
+
         UpdateAnimation();
 
         characterController.Move(playerVelocity * Time.fixedDeltaTime);
@@ -450,16 +474,34 @@ public class PlayerController : MonoBehaviour
         return walkSpeed;
     }
 
-    private void ApplyGravity()
+    // Animator receiver function.
+    public void LaunchJump()
     {
-        if (IsGrounded)
+        if (hasLaunchedJump)
+            return;
+
+        playerVelocity.y = jumpForce;
+        hasLaunchedJump = true;
+    }
+
+    private void HandleJumpAndGravity()
+    {
+        if (IsGrounded && playerVelocity.y <= 0f)
         {
-            // Apply a small downward force to keep the controller grounded.
+            hasLaunchedJump = false;
+
+            // Keep the controller grounded during the jump windup.
             playerVelocity.y = -2f;
+
+            if (isJumping)
+            {
+                animator.SetTrigger("Jump");
+                isJumping = false;
+            }
         }
         else
         {
-            playerVelocity.y += gravity * Time.fixedDeltaTime;
+            playerVelocity.y -= gravity * Time.fixedDeltaTime;
 
             if (playerVelocity.y < -maxFallSpeed)
                 playerVelocity.y = -maxFallSpeed;
@@ -470,15 +512,32 @@ public class PlayerController : MonoBehaviour
     {
         animator.SetBool("IsSneaking", isCrouching);
 
-        float animationSpeed =
-            HorizontalVelocity.magnitude / GetMovementSpeed();
+        animator.SetFloat("VerticalVelocity", playerVelocity.y);
 
-        if (!isCrouching && !isSprinting)
-            animationSpeed *= 0.5f;
+        animator.SetBool("HasLaunchedJump", hasLaunchedJump);
 
+        animator.SetBool("IsGrounded", IsGrounded);
+
+        animator.SetBool("IsFalling",
+            airborneTime > fallingTimeThreshold && VerticalVelocity < 0f);
+
+        float moveSpeed;
+
+        if (moveInput.x != 0 || moveInput.y != 0)
+        {
+            if (!isCrouching && isSprinting)
+                moveSpeed = 1f;
+            else
+                moveSpeed = 0.5f;   
+        }
+        else
+        {
+            moveSpeed = 0f;
+        }
+        
         animator.SetFloat(
             "MoveSpeed",
-            animationSpeed,
+            moveSpeed,
             0.15f,
             Time.fixedDeltaTime
         );
