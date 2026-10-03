@@ -5736,6 +5736,14 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 6910131081190831571, guid: 81500f2a11c1a274ba1c10f6a525ac9c, type: 3}
+      propertyPath: maxFidgetDelay
+      value: 60
+      objectReference: {fileID: 0}
+    - target: {fileID: 6910131081190831571, guid: 81500f2a11c1a274ba1c10f6a525ac9c, type: 3}
+      propertyPath: minFidgetDelay
+      value: 30
+      objectReference: {fileID: 0}
+    - target: {fileID: 6910131081190831571, guid: 81500f2a11c1a274ba1c10f6a525ac9c, type: 3}
       propertyPath: cinemachineBrain
       value: 
       objectReference: {fileID: 330585548}

@@ -44,6 +44,13 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float thirdPersonMinPitch = -30f;
     [SerializeField] private float thirdPersonMaxPitch = 60f;
 
+    [Header("Animation")]
+    [SerializeField] private float minFidgetDelay = 4f;
+    [SerializeField] private float maxFidgetDelay = 8f;
+
+    private float fidgetTimer;
+    private float nextFidgetTime;
+
     private Animator animator;
     private CharacterController characterController;
 
@@ -132,6 +139,8 @@ public class PlayerController : MonoBehaviour
             isCrouching
                 ? firstPersonCameraCrouchingOffset
                 : firstPersonCameraStandingOffset;
+
+        ResetFidgetTimer();
     }
 
     private void Update()
@@ -191,6 +200,7 @@ public class PlayerController : MonoBehaviour
 
         UpdatePerspectiveTransition();
         UpdateCameraReset();
+        UpdateFidget();
     }
 
     private void FixedUpdate()
@@ -555,5 +565,42 @@ public class PlayerController : MonoBehaviour
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
         }
+    }
+
+    private void UpdateFidget()
+    {
+        bool isPlayingFidget =
+            animator.GetCurrentAnimatorStateInfo(0).IsTag("Fidget");
+
+        bool isIdle =
+            IsGrounded &&
+            !isCrouching &&
+            !isJumping &&
+            !isPlayingFidget &&
+            moveInput.sqrMagnitude < 0.001f;
+
+        if (!isIdle)
+        {
+            ResetFidgetTimer();
+            return;
+        }
+
+        fidgetTimer += Time.deltaTime;
+
+        if (fidgetTimer >= nextFidgetTime)
+        {
+            if (Random.value < 0.5f)
+                animator.SetTrigger("Fidget1");
+            else
+                animator.SetTrigger("Fidget2");
+
+            ResetFidgetTimer();
+        }
+    }
+
+    private void ResetFidgetTimer()
+    {
+        fidgetTimer = 0f;
+        nextFidgetTime = Random.Range(minFidgetDelay, maxFidgetDelay);
     }
 }
