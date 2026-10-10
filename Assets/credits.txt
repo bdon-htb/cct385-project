@@ -1,0 +1,12 @@
+Animation sources:
+https://www.mixamo.com
+
+Textures:
+Hinoki Planks (CC0)
+https://polyhaven.com/a/hinoki_planks
+
+Plaster (CC0)
+https://polyhaven.com/a/plastered_wall
+
+Tatami Mat (CC0)
+https://polyhaven.com/a/tatami_mat

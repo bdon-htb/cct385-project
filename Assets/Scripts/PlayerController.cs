@@ -11,6 +11,10 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float walkSpeed = 3f;
     [SerializeField] private float sprintSpeed = 6f;
     [SerializeField] private float crouchSpeed = 1.5f;
+    [SerializeField] private float groundAcceleration = 35f;
+    [SerializeField] private float groundDeceleration = 50f;
+    [SerializeField] private float airAcceleration = 8f;
+    [SerializeField] private float airDeceleration = 2f;
     [SerializeField] private float gravity = 9.81f;
     [SerializeField] private float maxFallSpeed = 20f;
     [SerializeField] private float walkRotationSpeed = 5f;
@@ -65,8 +69,10 @@ public class PlayerController : MonoBehaviour
     private bool IsGrounded => characterController.isGrounded;
     private bool isCrouching;
     private bool isSprinting;
-    private bool isJumping;
-    private bool hasLaunchedJump;
+    private bool isJumping; // Jump input has been requested.
+    private bool isPreparingJump; // Jump animation has started, but have not launhed.
+    private bool hasLaunchedJump; // Physical launch has already happened.
+    private bool wasGrounded;
 
     private Vector2 moveInput;
     private Vector3 playerVelocity;
@@ -139,6 +145,8 @@ public class PlayerController : MonoBehaviour
             isCrouching
                 ? firstPersonCameraCrouchingOffset
                 : firstPersonCameraStandingOffset;
+        
+        wasGrounded = IsGrounded;
 
         ResetFidgetTimer();
     }
@@ -165,13 +173,17 @@ public class PlayerController : MonoBehaviour
                 isCrouching = !isCrouching;
             }
 
-            if (jumpAction.WasPressedThisFrame())
+            if (jumpAction.WasPressedThisFrame() &&
+                !isPreparingJump &&
+                !hasLaunchedJump)
             {
                 isJumping = true;
                 isCrouching = false;
             }
 
-            isSprinting = !isCrouching && sprintAction.IsPressed();
+            isSprinting = sprintAction.IsPressed();
+            if (isSprinting)
+                isCrouching = false;
         }
 
         UpdateFirstPersonCameraTarget();
@@ -220,6 +232,15 @@ public class PlayerController : MonoBehaviour
         UpdateAnimation();
 
         characterController.Move(playerVelocity * Time.fixedDeltaTime);
+
+        bool isGroundedNow = IsGrounded;
+
+        if (isGroundedNow && !wasGrounded && hasLaunchedJump)
+        {
+            hasLaunchedJump = false;
+        }
+
+        wasGrounded = isGroundedNow;
     }
 
     private void ResetCamera()
@@ -395,6 +416,33 @@ public class PlayerController : MonoBehaviour
         hasStartedPerspectiveBlend = false;
     }
 
+    private void ApplyHorizontalMovement(Vector3 targetVelocity)
+    {
+        float acceleration;
+
+        if (IsGrounded)
+        {
+            acceleration = moveInput.sqrMagnitude > 0.001f
+                ? groundAcceleration
+                : groundDeceleration;
+        }
+        else
+        {
+            acceleration = moveInput.sqrMagnitude > 0.001f
+                ? airAcceleration
+                : airDeceleration;
+        }
+
+        Vector3 newVelocity = Vector3.MoveTowards(
+            HorizontalVelocity,
+            targetVelocity,
+            acceleration * Time.fixedDeltaTime
+        );
+
+        playerVelocity.x = newVelocity.x;
+        playerVelocity.z = newVelocity.z;
+    }
+
     private void HandleFirstPersonMovement()
     {
         Vector3 cameraForward = firstPersonCameraTransform.forward;
@@ -412,8 +460,7 @@ public class PlayerController : MonoBehaviour
 
         moveDirection *= GetMovementSpeed();
 
-        playerVelocity.x = moveDirection.x;
-        playerVelocity.z = moveDirection.z;
+        ApplyHorizontalMovement(moveDirection);
 
         if (cameraForward.sqrMagnitude > 0.001f)
             transform.rotation = Quaternion.LookRotation(cameraForward);
@@ -451,8 +498,7 @@ public class PlayerController : MonoBehaviour
 
             moveDirection *= GetMovementSpeed();
 
-            playerVelocity.x = moveDirection.x;
-            playerVelocity.z = moveDirection.z;
+            ApplyHorizontalMovement(moveDirection);
         }
 
         float rotationSpeed =
@@ -487,27 +533,33 @@ public class PlayerController : MonoBehaviour
     // Animator receiver function.
     public void LaunchJump()
     {
-        if (hasLaunchedJump)
+        if (!isPreparingJump || hasLaunchedJump)
             return;
 
         playerVelocity.y = jumpForce;
         hasLaunchedJump = true;
+        isPreparingJump = false;
     }
 
     private void HandleJumpAndGravity()
     {
         if (IsGrounded && playerVelocity.y <= 0f)
         {
-            hasLaunchedJump = false;
+            if (isJumping && !isPreparingJump)
+            {
+                isPreparingJump = true;
+                isJumping = false;
+
+                animator.SetTrigger("Jump");
+
+                // First person: launch immediately.
+                if (isFirstPerson)
+                    LaunchJump();
+            }
 
             // Keep the controller grounded during the jump windup.
-            playerVelocity.y = -2f;
-
-            if (isJumping)
-            {
-                animator.SetTrigger("Jump");
-                isJumping = false;
-            }
+            if (!hasLaunchedJump)
+                playerVelocity.y = -2f;
         }
         else
         {
@@ -544,7 +596,7 @@ public class PlayerController : MonoBehaviour
         {
             moveSpeed = 0f;
         }
-        
+
         animator.SetFloat(
             "MoveSpeed",
             moveSpeed,
