@@ -24,7 +24,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1492184032954270728}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 1.595, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -72,7 +72,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: d2900edbcd4c17749afbde141b71bb32, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: d2900edbcd4c17749afbde141b71bb32, type: 3}
       propertyPath: m_LocalPosition.y
@@ -80,7 +80,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: d2900edbcd4c17749afbde141b71bb32, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: 1.5
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: d2900edbcd4c17749afbde141b71bb32, type: 3}
       propertyPath: m_LocalRotation.w
@@ -114,15 +114,19 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: d2900edbcd4c17749afbde141b71bb32, type: 3}
+      propertyPath: m_TagString
+      value: Player
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects:
     - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: d2900edbcd4c17749afbde141b71bb32, type: 3}
       insertIndex: 0
-      addedObject: {fileID: 2672015614611811351}
+      addedObject: {fileID: 8267281823744677904}
     - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: d2900edbcd4c17749afbde141b71bb32, type: 3}
       insertIndex: 1
-      addedObject: {fileID: 8267281823744677904}
+      addedObject: {fileID: 2672015614611811351}
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: d2900edbcd4c17749afbde141b71bb32, type: 3}
       insertIndex: -1
@@ -211,14 +215,18 @@ MonoBehaviour:
   playerMeshRenderer: {fileID: 2329256281910900391}
   inputActions: {fileID: -944628639613478452, guid: d18ea6e2a04b6a64ab00e4fb234eb5d6, type: 3}
   walkSpeed: 3
-  sprintSpeed: 6.5
+  sprintSpeed: 7
   crouchSpeed: 1.5
+  groundAcceleration: 35
+  groundDeceleration: 50
+  airAcceleration: 8
+  airDeceleration: 2
   gravity: 9.81
   maxFallSpeed: 100
   walkRotationSpeed: 5
   sprintRotationSpeed: 10
-  jumpForce: 5
-  isFirstPerson: 1
+  jumpForce: 6
+  isFirstPerson: 0
   cameraResetSpeed: 350
   zoomInputThreshold: 0.05
   cinemachineBrain: {fileID: 0}
@@ -234,4 +242,6 @@ MonoBehaviour:
   firstPersonCameraCrouchSpeed: 5
   thirdPersonMinPitch: -30
   thirdPersonMaxPitch: 60
+  minFidgetDelay: 30
+  maxFidgetDelay: 60
   fallingTimeThreshold: 0.35
