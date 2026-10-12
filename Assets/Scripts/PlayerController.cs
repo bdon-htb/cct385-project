@@ -45,9 +45,6 @@ public class PlayerController : MonoBehaviour
         new Vector3(0, 1f, 0);
     [SerializeField] private float firstPersonCameraCrouchSpeed = 5f;
 
-    [SerializeField] private float thirdPersonMinPitch = -30f;
-    [SerializeField] private float thirdPersonMaxPitch = 60f;
-
     [Header("Animation")]
     [SerializeField] private float minFidgetDelay = 4f;
     [SerializeField] private float maxFidgetDelay = 8f;
@@ -272,11 +269,31 @@ public class PlayerController : MonoBehaviour
                 cameraResetSpeed * Time.deltaTime
             );
 
-        if (Mathf.Abs(Mathf.DeltaAngle(
+        // Reset vertical camera angle.
+        float targetPitch = thirdPersonOrbitalFollow.VerticalAxis.Center;
+
+        thirdPersonOrbitalFollow.VerticalAxis.Value =
+            Mathf.MoveTowards(
+                thirdPersonOrbitalFollow.VerticalAxis.Value,
+                targetPitch,
+                cameraResetSpeed * Time.deltaTime
+            );
+
+        bool yawResetComplete =
+            Mathf.Abs(Mathf.DeltaAngle(
                 thirdPersonOrbitalFollow.HorizontalAxis.Value,
-                targetYaw)) < 0.1f)
+                targetYaw)) < 0.1f;
+
+        bool pitchResetComplete =
+            Mathf.Abs(
+                thirdPersonOrbitalFollow.VerticalAxis.Value -
+                targetPitch) < 0.1f;
+
+        if (yawResetComplete && pitchResetComplete)
         {
             thirdPersonOrbitalFollow.HorizontalAxis.Value = targetYaw;
+            thirdPersonOrbitalFollow.VerticalAxis.Value = targetPitch;
+
             isResettingCamera = false;
         }
     }
@@ -309,6 +326,9 @@ public class PlayerController : MonoBehaviour
 
         if (newIsFirstPerson)
         {
+            // Hide the character immediately so the rotation isn't visible.
+            playerMeshRenderer.enabled = false;
+
             if (!isInitializing)
             {
                 // Preserve the actual third-person viewing direction.
@@ -353,20 +373,12 @@ public class PlayerController : MonoBehaviour
                 float pitch =
                     Mathf.Asin(cameraForward.y) * Mathf.Rad2Deg;
 
-                // Convert the actual FPS pitch to a position within
-                // the allowed third-person vertical orbit.
-                float normalizedPitch =
-                    Mathf.InverseLerp(
-                        thirdPersonMinPitch,
-                        thirdPersonMaxPitch,
-                        pitch
-                    );
-
+                // Orbital Follow's vertical angle is opposite to viewing pitch.
                 thirdPersonOrbitalFollow.VerticalAxis.Value =
-                    Mathf.Lerp(
+                    Mathf.Clamp(
+                        -pitch,
                         thirdPersonOrbitalFollow.VerticalAxis.Range.x,
-                        thirdPersonOrbitalFollow.VerticalAxis.Range.y,
-                        normalizedPitch
+                        thirdPersonOrbitalFollow.VerticalAxis.Range.y
                     );
             }
 
@@ -376,9 +388,6 @@ public class PlayerController : MonoBehaviour
 
         firstPersonCamera.enabled = newIsFirstPerson;
         thirdPersonCamera.enabled = !newIsFirstPerson;
-
-        thirdPersonOrbitalFollow.RadialAxis.Value =
-            thirdPersonOrbitalFollow.RadialAxis.Range.x;
 
         isFirstPerson = newIsFirstPerson;
 
@@ -392,6 +401,8 @@ public class PlayerController : MonoBehaviour
         {
             isChangingPerspective = true;
             hasStartedPerspectiveBlend = false;
+            thirdPersonOrbitalFollow.RadialAxis.Value =
+                thirdPersonOrbitalFollow.RadialAxis.Range.x;
         }
     }
 
@@ -408,9 +419,6 @@ public class PlayerController : MonoBehaviour
 
         if (!hasStartedPerspectiveBlend)
             return;
-
-        if (isFirstPerson)
-            playerMeshRenderer.enabled = false;
 
         isChangingPerspective = false;
         hasStartedPerspectiveBlend = false;
