@@ -15485,8 +15485,54 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 7831821286766758241, guid: 81500f2a11c1a274ba1c10f6a525ac9c, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 628002722609695238}
   m_SourcePrefab: {fileID: 100100000, guid: 81500f2a11c1a274ba1c10f6a525ac9c, type: 3}
+--- !u!114 &628002722609695236 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6910131081190831571, guid: 81500f2a11c1a274ba1c10f6a525ac9c, type: 3}
+  m_PrefabInstance: {fileID: 628002722609695235}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 628002722609695237}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fed310160782604468a96955b3512b4d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerController
+--- !u!1 &628002722609695237 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7831821286766758241, guid: 81500f2a11c1a274ba1c10f6a525ac9c, type: 3}
+  m_PrefabInstance: {fileID: 628002722609695235}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &628002722609695238
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 628002722609695237}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d04d3e02775b9084b802af9475742510, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerCamera
+  playerController: {fileID: 628002722609695236}
+  isFirstPerson: 1
+  cameraResetSpeed: 350
+  zoomInputThreshold: 0.05
+  cinemachineBrain: {fileID: 330585548}
+  firstPersonCamera: {fileID: 1303866382}
+  thirdPersonCamera: {fileID: 58305167}
+  firstPersonCameraTransform: {fileID: 1303866378}
+  thirdPersonCameraTransform: {fileID: 58305166}
+  thirdPersonOrbitalFollow: {fileID: 58305169}
+  firstPersonPanTilt: {fileID: 1303866380}
+  firstPersonCameraTargetTransform: {fileID: 1397655595}
+  firstPersonCameraStandingOffset: {x: 0, y: 1.595, z: 0}
+  firstPersonCameraCrouchingOffset: {x: 0, y: 1, z: 0}
+  firstPersonCameraCrouchSpeed: 5
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

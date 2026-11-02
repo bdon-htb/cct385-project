@@ -94,6 +94,12 @@ public class PlayerController : MonoBehaviour
             thirdPersonOrbitalFollow.RadialAxis.Value,
             thirdPersonOrbitalFollow.RadialAxis.Range.x
         );
+    
+    // TODO: These are temp public getters for other components.
+    // Will probably need to update these with care.
+    public InputActionAsset InputActions => inputActions;
+    public bool IsCrouching => isCrouching;
+    public SkinnedMeshRenderer PlayerMeshRenderer => playerMeshRenderer;
 
     private void Awake()
     {
@@ -108,7 +114,7 @@ public class PlayerController : MonoBehaviour
         jumpAction = inputActions.FindAction("Player/Jump");
         cameraResetAction = inputActions.FindAction("Player/CameraReset");
 
-        SetCameraPerspective(isFirstPerson, true);
+        // SetCameraPerspective(isFirstPerson, true);
     }
 
     private void OnEnable()
@@ -183,32 +189,32 @@ public class PlayerController : MonoBehaviour
                 isCrouching = false;
         }
 
-        UpdateFirstPersonCameraTarget();
+        // UpdateFirstPersonCameraTarget();
 
-        float zoomInput = zoomAction.ReadValue<float>();
+        // float zoomInput = zoomAction.ReadValue<float>();
 
-        if (!isFirstPerson)
-        {
-            if (cameraResetAction.WasPressedThisFrame())
-                ResetCamera();
+        // if (!isFirstPerson)
+        // {
+        //     if (cameraResetAction.WasPressedThisFrame())
+        //         ResetCamera();
 
-            // Third person -> first person.
-            if (!isResettingCamera &&
-                zoomInput > zoomInputThreshold &&
-                IsThirdPersonCameraFullyZoomedIn)
-            {
-                ToggleCameraPerspective();
-            }
-        }
-        else
-        {
-            // First person -> third person.
-            if (zoomInput < -zoomInputThreshold)
-                ToggleCameraPerspective();
-        }
+        //     // Third person -> first person.
+        //     if (!isResettingCamera &&
+        //         zoomInput > zoomInputThreshold &&
+        //         IsThirdPersonCameraFullyZoomedIn)
+        //     {
+        //         ToggleCameraPerspective();
+        //     }
+        // }
+        // else
+        // {
+        //     // First person -> third person.
+        //     if (zoomInput < -zoomInputThreshold)
+        //         ToggleCameraPerspective();
+        // }
 
-        UpdatePerspectiveTransition();
-        UpdateCameraReset();
+        // UpdatePerspectiveTransition();
+        // UpdateCameraReset();
         UpdateFidget();
     }
 
