@@ -15406,35 +15406,31 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 2672015614611811351, guid: 81500f2a11c1a274ba1c10f6a525ac9c, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 1.6
-      objectReference: {fileID: 0}
-    - target: {fileID: 6910131081190831571, guid: 81500f2a11c1a274ba1c10f6a525ac9c, type: 3}
+    - target: {fileID: 2837574917317102817, guid: 81500f2a11c1a274ba1c10f6a525ac9c, type: 3}
       propertyPath: cinemachineBrain
       value: 
       objectReference: {fileID: 330585548}
-    - target: {fileID: 6910131081190831571, guid: 81500f2a11c1a274ba1c10f6a525ac9c, type: 3}
+    - target: {fileID: 2837574917317102817, guid: 81500f2a11c1a274ba1c10f6a525ac9c, type: 3}
       propertyPath: firstPersonCamera
       value: 
       objectReference: {fileID: 1303866382}
-    - target: {fileID: 6910131081190831571, guid: 81500f2a11c1a274ba1c10f6a525ac9c, type: 3}
+    - target: {fileID: 2837574917317102817, guid: 81500f2a11c1a274ba1c10f6a525ac9c, type: 3}
       propertyPath: thirdPersonCamera
       value: 
       objectReference: {fileID: 58305167}
-    - target: {fileID: 6910131081190831571, guid: 81500f2a11c1a274ba1c10f6a525ac9c, type: 3}
+    - target: {fileID: 2837574917317102817, guid: 81500f2a11c1a274ba1c10f6a525ac9c, type: 3}
       propertyPath: firstPersonPanTilt
       value: 
       objectReference: {fileID: 1303866380}
-    - target: {fileID: 6910131081190831571, guid: 81500f2a11c1a274ba1c10f6a525ac9c, type: 3}
+    - target: {fileID: 2837574917317102817, guid: 81500f2a11c1a274ba1c10f6a525ac9c, type: 3}
       propertyPath: thirdPersonOrbitalFollow
       value: 
       objectReference: {fileID: 58305169}
-    - target: {fileID: 6910131081190831571, guid: 81500f2a11c1a274ba1c10f6a525ac9c, type: 3}
+    - target: {fileID: 2837574917317102817, guid: 81500f2a11c1a274ba1c10f6a525ac9c, type: 3}
       propertyPath: firstPersonCameraTransform
       value: 
       objectReference: {fileID: 1303866378}
-    - target: {fileID: 6910131081190831571, guid: 81500f2a11c1a274ba1c10f6a525ac9c, type: 3}
+    - target: {fileID: 2837574917317102817, guid: 81500f2a11c1a274ba1c10f6a525ac9c, type: 3}
       propertyPath: thirdPersonCameraTransform
       value: 
       objectReference: {fileID: 58305166}
