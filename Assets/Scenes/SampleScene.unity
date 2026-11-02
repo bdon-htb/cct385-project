@@ -15406,35 +15406,31 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 2672015614611811351, guid: 81500f2a11c1a274ba1c10f6a525ac9c, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 1.6
-      objectReference: {fileID: 0}
-    - target: {fileID: 6910131081190831571, guid: 81500f2a11c1a274ba1c10f6a525ac9c, type: 3}
+    - target: {fileID: 2837574917317102817, guid: 81500f2a11c1a274ba1c10f6a525ac9c, type: 3}
       propertyPath: cinemachineBrain
       value: 
       objectReference: {fileID: 330585548}
-    - target: {fileID: 6910131081190831571, guid: 81500f2a11c1a274ba1c10f6a525ac9c, type: 3}
+    - target: {fileID: 2837574917317102817, guid: 81500f2a11c1a274ba1c10f6a525ac9c, type: 3}
       propertyPath: firstPersonCamera
       value: 
       objectReference: {fileID: 1303866382}
-    - target: {fileID: 6910131081190831571, guid: 81500f2a11c1a274ba1c10f6a525ac9c, type: 3}
+    - target: {fileID: 2837574917317102817, guid: 81500f2a11c1a274ba1c10f6a525ac9c, type: 3}
       propertyPath: thirdPersonCamera
       value: 
       objectReference: {fileID: 58305167}
-    - target: {fileID: 6910131081190831571, guid: 81500f2a11c1a274ba1c10f6a525ac9c, type: 3}
+    - target: {fileID: 2837574917317102817, guid: 81500f2a11c1a274ba1c10f6a525ac9c, type: 3}
       propertyPath: firstPersonPanTilt
       value: 
       objectReference: {fileID: 1303866380}
-    - target: {fileID: 6910131081190831571, guid: 81500f2a11c1a274ba1c10f6a525ac9c, type: 3}
+    - target: {fileID: 2837574917317102817, guid: 81500f2a11c1a274ba1c10f6a525ac9c, type: 3}
       propertyPath: thirdPersonOrbitalFollow
       value: 
       objectReference: {fileID: 58305169}
-    - target: {fileID: 6910131081190831571, guid: 81500f2a11c1a274ba1c10f6a525ac9c, type: 3}
+    - target: {fileID: 2837574917317102817, guid: 81500f2a11c1a274ba1c10f6a525ac9c, type: 3}
       propertyPath: firstPersonCameraTransform
       value: 
       objectReference: {fileID: 1303866378}
-    - target: {fileID: 6910131081190831571, guid: 81500f2a11c1a274ba1c10f6a525ac9c, type: 3}
+    - target: {fileID: 2837574917317102817, guid: 81500f2a11c1a274ba1c10f6a525ac9c, type: 3}
       propertyPath: thirdPersonCameraTransform
       value: 
       objectReference: {fileID: 58305166}
@@ -15485,87 +15481,8 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 7831821286766758241, guid: 81500f2a11c1a274ba1c10f6a525ac9c, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 628002722609695238}
-    - targetCorrespondingSourceObject: {fileID: 7831821286766758241, guid: 81500f2a11c1a274ba1c10f6a525ac9c, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 628002722609695242}
-    - targetCorrespondingSourceObject: {fileID: 7831821286766758241, guid: 81500f2a11c1a274ba1c10f6a525ac9c, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 628002722609695243}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 81500f2a11c1a274ba1c10f6a525ac9c, type: 3}
---- !u!1 &628002722609695237 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 7831821286766758241, guid: 81500f2a11c1a274ba1c10f6a525ac9c, type: 3}
-  m_PrefabInstance: {fileID: 628002722609695235}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &628002722609695238
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 628002722609695237}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d04d3e02775b9084b802af9475742510, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerCamera
-  isFirstPerson: 1
-  cameraResetSpeed: 350
-  zoomInputThreshold: 0.05
-  cinemachineBrain: {fileID: 330585548}
-  firstPersonCamera: {fileID: 1303866382}
-  thirdPersonCamera: {fileID: 58305167}
-  firstPersonCameraTransform: {fileID: 1303866378}
-  thirdPersonCameraTransform: {fileID: 58305166}
-  thirdPersonOrbitalFollow: {fileID: 58305169}
-  firstPersonPanTilt: {fileID: 1303866380}
-  firstPersonCameraTargetTransform: {fileID: 1397655595}
-  firstPersonCameraStandingOffset: {x: 0, y: 1.595, z: 0}
-  firstPersonCameraCrouchingOffset: {x: 0, y: 1, z: 0}
-  firstPersonCameraCrouchSpeed: 5
---- !u!114 &628002722609695242
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 628002722609695237}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ce2f6376745a08245a670bbb8c506227, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
-  walkSpeed: 3
-  sprintSpeed: 7
-  crouchSpeed: 1.5
-  groundAcceleration: 35
-  groundDeceleration: 50
-  airAcceleration: 8
-  airDeceleration: 2
-  gravity: 9.81
-  maxFallSpeed: 100
-  walkRotationSpeed: 5
-  sprintRotationSpeed: 10
-  jumpForce: 6
---- !u!114 &628002722609695243
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 628002722609695237}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 78bf7a79f3e75cd4ca9a242a584185be, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerAnimation
-  minFidgetDelay: 30
-  maxFidgetDelay: 60
-  fallingTimeThreshold: 0.35
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

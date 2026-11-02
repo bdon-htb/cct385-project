@@ -1,13 +1,14 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-[RequireComponent(typeof(PlayerController))]
 [RequireComponent(typeof(PlayerCamera))]
-[RequireComponent(typeof(Animator))]
+[RequireComponent(typeof(PlayerAnimation))]
 [RequireComponent(typeof(CharacterController))]
 public class PlayerMovement : MonoBehaviour
 {
-    private PlayerController playerController;
+    [SerializeField] private InputActionAsset inputActions;
+
+    private PlayerAnimation playerAnimation;
     private PlayerCamera playerCamera;
     private Animator animator;
     private CharacterController characterController;
@@ -58,12 +59,9 @@ public class PlayerMovement : MonoBehaviour
 
     private void Awake()
     {
-        playerController = GetComponent<PlayerController>();
         playerCamera = GetComponent<PlayerCamera>();
-        animator = GetComponent<Animator>();
+        playerAnimation = GetComponent<PlayerAnimation>();
         characterController = GetComponent<CharacterController>();
-
-        InputActionAsset inputActions = playerController.InputActions;
 
         moveAction = inputActions.FindAction("Player/Move");
         crouchAction = inputActions.FindAction("Player/Crouch");
@@ -274,7 +272,7 @@ public class PlayerMovement : MonoBehaviour
                 isPreparingJump = true;
                 isJumping = false;
 
-                animator.SetTrigger("Jump");
+                playerAnimation.TriggerJump();
 
                 // First person: launch immediately.
                 if (playerCamera.IsFirstPerson)

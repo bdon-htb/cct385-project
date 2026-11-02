@@ -25,7 +25,7 @@ Transform:
   m_GameObject: {fileID: 1492184032954270728}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 1.595, z: 0}
+  m_LocalPosition: {x: 0, y: 1.6, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -136,7 +136,13 @@ PrefabInstance:
       addedObject: {fileID: 3900104218468971060}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: d2900edbcd4c17749afbde141b71bb32, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 6910131081190831571}
+      addedObject: {fileID: 2837574917317102817}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: d2900edbcd4c17749afbde141b71bb32, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2444778490259672543}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: d2900edbcd4c17749afbde141b71bb32, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 6126476643755252169}
   m_SourcePrefab: {fileID: 100100000, guid: d2900edbcd4c17749afbde141b71bb32, type: 3}
 --- !u!137 &2329256281910900391 stripped
 SkinnedMeshRenderer:
@@ -200,7 +206,7 @@ CharacterController:
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 1.08, z: 0}
---- !u!114 &6910131081190831571
+--- !u!114 &2837574917317102817
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -209,10 +215,37 @@ MonoBehaviour:
   m_GameObject: {fileID: 7831821286766758241}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fed310160782604468a96955b3512b4d, type: 3}
+  m_Script: {fileID: 11500000, guid: d04d3e02775b9084b802af9475742510, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerController
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerCamera
+  inputActions: {fileID: -944628639613478452, guid: d18ea6e2a04b6a64ab00e4fb234eb5d6, type: 3}
+  isFirstPerson: 1
+  cameraResetSpeed: 350
+  zoomInputThreshold: 0.05
   playerMeshRenderer: {fileID: 2329256281910900391}
+  cinemachineBrain: {fileID: 0}
+  firstPersonCamera: {fileID: 0}
+  thirdPersonCamera: {fileID: 0}
+  firstPersonCameraTransform: {fileID: 0}
+  thirdPersonCameraTransform: {fileID: 0}
+  thirdPersonOrbitalFollow: {fileID: 0}
+  firstPersonPanTilt: {fileID: 0}
+  firstPersonCameraTargetTransform: {fileID: 8267281823744677904}
+  firstPersonCameraStandingOffset: {x: 0, y: 1.595, z: 0}
+  firstPersonCameraCrouchingOffset: {x: 0, y: 1, z: 0}
+  firstPersonCameraCrouchSpeed: 5
+--- !u!114 &2444778490259672543
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7831821286766758241}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ce2f6376745a08245a670bbb8c506227, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
   inputActions: {fileID: -944628639613478452, guid: d18ea6e2a04b6a64ab00e4fb234eb5d6, type: 3}
   walkSpeed: 3
   sprintSpeed: 7
@@ -226,22 +259,18 @@ MonoBehaviour:
   walkRotationSpeed: 5
   sprintRotationSpeed: 10
   jumpForce: 6
-  isFirstPerson: 0
-  cameraResetSpeed: 350
-  zoomInputThreshold: 0.05
-  cinemachineBrain: {fileID: 0}
-  firstPersonCamera: {fileID: 0}
-  thirdPersonCamera: {fileID: 0}
-  firstPersonCameraTransform: {fileID: 0}
-  thirdPersonCameraTransform: {fileID: 0}
-  thirdPersonOrbitalFollow: {fileID: 0}
-  firstPersonPanTilt: {fileID: 0}
-  firstPersonCameraTargetTransform: {fileID: 8267281823744677904}
-  firstPersonCameraStandingOffset: {x: 0, y: 1.595, z: 0}
-  firstPersonCameraCrouchingOffset: {x: 0, y: 1, z: 0}
-  firstPersonCameraCrouchSpeed: 5
-  thirdPersonMinPitch: -30
-  thirdPersonMaxPitch: 60
+--- !u!114 &6126476643755252169
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7831821286766758241}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 78bf7a79f3e75cd4ca9a242a584185be, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerAnimation
   minFidgetDelay: 30
   maxFidgetDelay: 60
   fallingTimeThreshold: 0.35

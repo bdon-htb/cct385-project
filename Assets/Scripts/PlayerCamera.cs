@@ -2,11 +2,11 @@ using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-[RequireComponent(typeof(PlayerController))]
 [RequireComponent(typeof(PlayerMovement))]
 public class PlayerCamera : MonoBehaviour
 {
-    private PlayerController playerController;
+    [SerializeField] private InputActionAsset inputActions;
+
     private PlayerMovement playerMovement;
 
     [Header("Gameplay Properties")]
@@ -15,6 +15,7 @@ public class PlayerCamera : MonoBehaviour
     [SerializeField] private float zoomInputThreshold = 0.05f;
 
     [Header("Required References")]
+    [SerializeField] private SkinnedMeshRenderer playerMeshRenderer;
     [SerializeField] private CinemachineBrain cinemachineBrain;
     [SerializeField] private CinemachineCamera firstPersonCamera;
     [SerializeField] private CinemachineCamera thirdPersonCamera;
@@ -64,10 +65,7 @@ public class PlayerCamera : MonoBehaviour
 
     private void Awake()
     {
-        playerController = GetComponent<PlayerController>();
         playerMovement = GetComponent<PlayerMovement>();
-
-        InputActionAsset inputActions = playerController.InputActions;
         
         lookAction = inputActions.FindAction("Player/CameraLook");
         zoomAction = inputActions.FindAction("Player/CameraZoom");
@@ -97,10 +95,21 @@ public class PlayerCamera : MonoBehaviour
             playerMovement.IsCrouching
                 ? firstPersonCameraCrouchingOffset
                 : firstPersonCameraStandingOffset;
+        SetCursorLock(true);
     }
 
     private void Update()
     {
+        if (Keyboard.current.escapeKey.wasPressedThisFrame)
+        {
+            SetCursorLock(false);
+        }
+        else if (Mouse.current.leftButton.wasPressedThisFrame &&
+                 Cursor.lockState != CursorLockMode.Locked)
+        {
+            SetCursorLock(true);
+        }
+
         UpdateFirstPersonCameraTarget();
 
         float zoomInput = zoomAction.ReadValue<float>();
@@ -216,7 +225,7 @@ public class PlayerCamera : MonoBehaviour
         if (newIsFirstPerson)
         {
             // Hide the character immediately so the rotation isn't visible.
-            playerController.PlayerMeshRenderer.enabled = false;
+            playerMeshRenderer.enabled = false;
 
             if (!isInitializing)
             {
@@ -272,7 +281,7 @@ public class PlayerCamera : MonoBehaviour
             }
 
             // Make the body immediately visible as the camera pulls away.
-            playerController.PlayerMeshRenderer.enabled = true;
+            playerMeshRenderer.enabled = true;
         }
 
         firstPersonCamera.enabled = newIsFirstPerson;
@@ -282,7 +291,7 @@ public class PlayerCamera : MonoBehaviour
 
         if (isInitializing)
         {
-            playerController.PlayerMeshRenderer.enabled = !isFirstPerson;
+            playerMeshRenderer.enabled = !isFirstPerson;
             isChangingPerspective = false;
             hasStartedPerspectiveBlend = false;
         }
@@ -310,5 +319,19 @@ public class PlayerCamera : MonoBehaviour
 
         isChangingPerspective = false;
         hasStartedPerspectiveBlend = false;
+    }
+
+    private void SetCursorLock(bool isLocked)
+    {
+        if (isLocked)
+        {
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+        }
+        else
+        {
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+        }
     }
 }

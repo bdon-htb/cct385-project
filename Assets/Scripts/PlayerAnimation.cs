@@ -117,4 +117,9 @@ public class PlayerAnimation : MonoBehaviour
         fidgetTimer = 0f;
         nextFidgetTime = Random.Range(minFidgetDelay, maxFidgetDelay);
     }
+
+    public void TriggerJump()
+    {
+        animator.SetTrigger("Jump");
+    }
 }
