@@ -2,9 +2,12 @@ using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+[RequireComponent(typeof(PlayerController))]
+[RequireComponent(typeof(PlayerMovement))]
 public class PlayerCamera : MonoBehaviour
 {
-    [SerializeField] private PlayerController playerController;
+    private PlayerController playerController;
+    private PlayerMovement playerMovement;
 
     [Header("Gameplay Properties")]
     [SerializeField] private bool isFirstPerson = true;
@@ -38,7 +41,7 @@ public class PlayerCamera : MonoBehaviour
     private InputAction cameraResetAction;
 
 
-    // Runtime game logic variables.
+    // Runtime gameplay variables.
     private bool isResettingCamera;
     private bool hasStartedPerspectiveBlend;
     private bool isChangingPerspective;
@@ -51,9 +54,19 @@ public class PlayerCamera : MonoBehaviour
             thirdPersonOrbitalFollow.RadialAxis.Range.x
         );
     
+    public bool IsFirstPerson => isFirstPerson;
+    public bool IsResettingCamera => isResettingCamera;
+    public Transform FirstPersonCameraTransform => firstPersonCameraTransform;
+    public Transform ThirdPersonCameraTransform => thirdPersonCameraTransform;
+    public Vector3 ResetCameraForward => resetCameraForward;
+    public Vector3 ResetCameraRight => resetCameraRight;
+    
 
     private void Awake()
     {
+        playerController = GetComponent<PlayerController>();
+        playerMovement = GetComponent<PlayerMovement>();
+
         InputActionAsset inputActions = playerController.InputActions;
         
         lookAction = inputActions.FindAction("Player/CameraLook");
@@ -80,9 +93,8 @@ public class PlayerCamera : MonoBehaviour
     private void Start()
     {
         // Set the initial position immediately.
-        // TODO: Change playerController reference to playerMovement at some point.
         firstPersonCameraTargetTransform.localPosition =
-            playerController.IsCrouching
+            playerMovement.IsCrouching
                 ? firstPersonCameraCrouchingOffset
                 : firstPersonCameraStandingOffset;
     }
@@ -178,7 +190,7 @@ public class PlayerCamera : MonoBehaviour
     private void UpdateFirstPersonCameraTarget()
     {
         Vector3 targetPosition =
-            playerController.IsCrouching
+            playerMovement.IsCrouching
                 ? firstPersonCameraCrouchingOffset
                 : firstPersonCameraStandingOffset;
 

@@ -144,20 +144,20 @@ public class PlayerController : MonoBehaviour
         SetCursorLock(true);
 
         // Set the initial position immediately.
-        firstPersonCameraTargetTransform.localPosition =
-            isCrouching
-                ? firstPersonCameraCrouchingOffset
-                : firstPersonCameraStandingOffset;
+        // firstPersonCameraTargetTransform.localPosition =
+        //     isCrouching
+        //         ? firstPersonCameraCrouchingOffset
+        //         : firstPersonCameraStandingOffset;
         
-        wasGrounded = IsGrounded;
+        // wasGrounded = IsGrounded;
 
         ResetFidgetTimer();
     }
 
     private void Update()
     {
-        moveInput = moveAction.ReadValue<Vector2>();
-        moveInput = Vector2.ClampMagnitude(moveInput, 1);
+        // moveInput = moveAction.ReadValue<Vector2>();
+        // moveInput = Vector2.ClampMagnitude(moveInput, 1);
 
         if (Keyboard.current.escapeKey.wasPressedThisFrame)
         {
@@ -169,25 +169,25 @@ public class PlayerController : MonoBehaviour
             SetCursorLock(true);
         }
 
-        if (IsGrounded)
-        {
-            if (crouchAction.WasPressedThisFrame())
-            {
-                isCrouching = !isCrouching;
-            }
+        // if (IsGrounded)
+        // {
+        //     if (crouchAction.WasPressedThisFrame())
+        //     {
+        //         isCrouching = !isCrouching;
+        //     }
 
-            if (jumpAction.WasPressedThisFrame() &&
-                !isPreparingJump &&
-                !hasLaunchedJump)
-            {
-                isJumping = true;
-                isCrouching = false;
-            }
+        //     if (jumpAction.WasPressedThisFrame() &&
+        //         !isPreparingJump &&
+        //         !hasLaunchedJump)
+        //     {
+        //         isJumping = true;
+        //         isCrouching = false;
+        //     }
 
-            isSprinting = sprintAction.IsPressed();
-            if (isSprinting)
-                isCrouching = false;
-        }
+        //     isSprinting = sprintAction.IsPressed();
+        //     if (isSprinting)
+        //         isCrouching = false;
+        // }
 
         // UpdateFirstPersonCameraTarget();
 
@@ -220,30 +220,30 @@ public class PlayerController : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (isFirstPerson)
-            HandleFirstPersonMovement();
-        else
-            HandleThirdPersonMovement();
+        // if (isFirstPerson)
+        //     HandleFirstPersonMovement();
+        // else
+        //     HandleThirdPersonMovement();
 
-        HandleJumpAndGravity();
+        // HandleJumpAndGravity();
 
-        if (IsGrounded)
-            airborneTime = 0f;
-        else
-            airborneTime += Time.fixedDeltaTime;
+        // if (IsGrounded)
+        //     airborneTime = 0f;
+        // else
+        //     airborneTime += Time.fixedDeltaTime;
 
         UpdateAnimation();
 
-        characterController.Move(playerVelocity * Time.fixedDeltaTime);
+        // characterController.Move(playerVelocity * Time.fixedDeltaTime);
 
-        bool isGroundedNow = IsGrounded;
+        // bool isGroundedNow = IsGrounded;
 
-        if (isGroundedNow && !wasGrounded && hasLaunchedJump)
-        {
-            hasLaunchedJump = false;
-        }
+        // if (isGroundedNow && !wasGrounded && hasLaunchedJump)
+        // {
+        //     hasLaunchedJump = false;
+        // }
 
-        wasGrounded = isGroundedNow;
+        // wasGrounded = isGroundedNow;
     }
 
     private void ResetCamera()
@@ -545,15 +545,15 @@ public class PlayerController : MonoBehaviour
     }
 
     // Animator receiver function.
-    public void LaunchJump()
-    {
-        if (!isPreparingJump || hasLaunchedJump)
-            return;
+    // public void LaunchJump()
+    // {
+    //     if (!isPreparingJump || hasLaunchedJump)
+    //         return;
 
-        playerVelocity.y = jumpForce;
-        hasLaunchedJump = true;
-        isPreparingJump = false;
-    }
+    //     playerVelocity.y = jumpForce;
+    //     hasLaunchedJump = true;
+    //     isPreparingJump = false;
+    // }
 
     private void HandleJumpAndGravity()
     {
@@ -567,8 +567,8 @@ public class PlayerController : MonoBehaviour
                 animator.SetTrigger("Jump");
 
                 // First person: launch immediately.
-                if (isFirstPerson)
-                    LaunchJump();
+                if (isFirstPerson){}
+                    // LaunchJump();
             }
 
             // Keep the controller grounded during the jump windup.
