@@ -15492,6 +15492,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 7831821286766758241, guid: 81500f2a11c1a274ba1c10f6a525ac9c, type: 3}
       insertIndex: -1
       addedObject: {fileID: 628002722609695242}
+    - targetCorrespondingSourceObject: {fileID: 7831821286766758241, guid: 81500f2a11c1a274ba1c10f6a525ac9c, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 628002722609695243}
   m_SourcePrefab: {fileID: 100100000, guid: 81500f2a11c1a274ba1c10f6a525ac9c, type: 3}
 --- !u!1 &628002722609695237 stripped
 GameObject:
@@ -15548,6 +15551,21 @@ MonoBehaviour:
   walkRotationSpeed: 5
   sprintRotationSpeed: 10
   jumpForce: 6
+--- !u!114 &628002722609695243
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 628002722609695237}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 78bf7a79f3e75cd4ca9a242a584185be, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerAnimation
+  minFidgetDelay: 30
+  maxFidgetDelay: 60
+  fallingTimeThreshold: 0.35
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

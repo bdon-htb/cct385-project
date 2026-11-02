@@ -3,6 +3,8 @@ using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(PlayerController))]
 [RequireComponent(typeof(PlayerCamera))]
+[RequireComponent(typeof(Animator))]
+[RequireComponent(typeof(CharacterController))]
 public class PlayerMovement : MonoBehaviour
 {
     private PlayerController playerController;
@@ -44,11 +46,14 @@ public class PlayerMovement : MonoBehaviour
     private Vector3 HorizontalVelocity =>
         new Vector3(playerVelocity.x, 0f, playerVelocity.z);
 
-    private float VerticalVelocity => playerVelocity.y;
-    private float airborneTime;
 
-    public bool IsGrounded => characterController.isGrounded;
+    public bool IsSprinting => isSprinting;
     public bool IsCrouching => isCrouching;
+    public bool IsJumping => isJumping;
+    public bool IsGrounded => characterController.isGrounded;
+    public Vector2 MoveInput => moveInput;
+    public float VerticalVelocity => playerVelocity.y;
+    public bool HasLaunchedJump => hasLaunchedJump;
 
 
     private void Awake()
@@ -122,11 +127,6 @@ public class PlayerMovement : MonoBehaviour
             HandleThirdPersonMovement();
 
         HandleJumpAndGravity();
-
-        if (IsGrounded)
-            airborneTime = 0f;
-        else
-            airborneTime += Time.fixedDeltaTime;
 
         characterController.Move(playerVelocity * Time.fixedDeltaTime);
 
@@ -254,6 +254,7 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
+    // Animator receiver function.
     public void LaunchJump()
     {
         if (!isPreparingJump || hasLaunchedJump)
