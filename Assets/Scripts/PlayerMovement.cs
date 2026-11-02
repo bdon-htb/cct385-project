@@ -115,10 +115,7 @@ public class PlayerMovement : MonoBehaviour
             if (isSprinting)
                 isCrouching = false;
         }
-    }
 
-    private void FixedUpdate()
-    {
         if (playerCamera.IsFirstPerson)
             HandleFirstPersonMovement();
         else
@@ -126,7 +123,7 @@ public class PlayerMovement : MonoBehaviour
 
         HandleJumpAndGravity();
 
-        characterController.Move(playerVelocity * Time.fixedDeltaTime);
+        characterController.Move(playerVelocity * Time.deltaTime);
 
         bool isGroundedNow = IsGrounded;
 
@@ -169,7 +166,7 @@ public class PlayerMovement : MonoBehaviour
         Vector3 newVelocity = Vector3.MoveTowards(
             HorizontalVelocity,
             targetVelocity,
-            acceleration * Time.fixedDeltaTime
+            acceleration * Time.deltaTime
         );
 
         playerVelocity.x = newVelocity.x;
@@ -247,7 +244,7 @@ public class PlayerMovement : MonoBehaviour
             transform.rotation = Quaternion.Slerp(
                 transform.rotation,
                 targetRotation,
-                rotationSpeed * Time.fixedDeltaTime
+                rotationSpeed * Time.deltaTime
             );
         }
     }
@@ -285,7 +282,7 @@ public class PlayerMovement : MonoBehaviour
         }
         else
         {
-            playerVelocity.y -= gravity * Time.fixedDeltaTime;
+            playerVelocity.y -= gravity * Time.deltaTime;
 
             if (playerVelocity.y < -maxFallSpeed)
                 playerVelocity.y = -maxFallSpeed;
