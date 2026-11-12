@@ -1,4 +1,4 @@
-Animation sources:
+Player Model & Animation:
 https://www.mixamo.com
 
 Textures:
@@ -13,3 +13,6 @@ https://polyhaven.com/a/tatami_mat
 
 Shoji Paper (CC0)
 https://www.texturecan.com/details/280/
+
+Bow Model (CC0) by Gintoki1234
+https://skfb.ly/oytQQ

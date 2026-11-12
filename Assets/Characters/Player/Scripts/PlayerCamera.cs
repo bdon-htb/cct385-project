@@ -16,6 +16,7 @@ public class PlayerCamera : MonoBehaviour
 
     [Header("Required References")]
     [SerializeField] private SkinnedMeshRenderer playerMeshRenderer;
+    [SerializeField] private SkinnedMeshRenderer playerFPMeshRenderer;
     [SerializeField] private CinemachineBrain cinemachineBrain;
     [SerializeField] private CinemachineCamera firstPersonCamera;
     [SerializeField] private CinemachineCamera thirdPersonCamera;
@@ -224,8 +225,8 @@ public class PlayerCamera : MonoBehaviour
 
         if (newIsFirstPerson)
         {
-            // Hide the character immediately so the rotation isn't visible.
             playerMeshRenderer.enabled = false;
+            playerFPMeshRenderer.enabled = true;
 
             if (!isInitializing)
             {
@@ -280,8 +281,8 @@ public class PlayerCamera : MonoBehaviour
                     );
             }
 
-            // Make the body immediately visible as the camera pulls away.
             playerMeshRenderer.enabled = true;
+            playerFPMeshRenderer.enabled = false;
         }
 
         firstPersonCamera.enabled = newIsFirstPerson;
