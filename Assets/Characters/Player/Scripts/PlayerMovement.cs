@@ -10,7 +10,6 @@ public class PlayerMovement : MonoBehaviour
 
     private PlayerAnimation playerAnimation;
     private PlayerCamera playerCamera;
-    private Animator animator;
     private CharacterController characterController;
 
     [Header("Gameplay Properties")]
@@ -46,7 +45,6 @@ public class PlayerMovement : MonoBehaviour
 
     private Vector3 HorizontalVelocity =>
         new Vector3(playerVelocity.x, 0f, playerVelocity.z);
-
 
     public bool IsSprinting => isSprinting;
     public bool IsCrouching => isCrouching;

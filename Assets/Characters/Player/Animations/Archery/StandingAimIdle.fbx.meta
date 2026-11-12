@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: aa2a4e58ea9211b4fbf6935b1bd9f27b
+guid: 2753c24071e1c804f87e9e58bf76a9e2
 ModelImporter:
   serializedVersion: 24501
   internalIDToNameTable: []
@@ -23,7 +23,7 @@ ModelImporter:
     animationDoRetargetingWarnings: 0
     importAnimatedCustomProperties: 0
     importConstraints: 0
-    animationCompression: 3
+    animationCompression: 1
     animationRotationError: 0.5
     animationPositionError: 0.5
     animationScaleError: 0.5
@@ -32,18 +32,18 @@ ModelImporter:
     extraUserProperties: []
     clipAnimations:
     - serializedVersion: 16
-      name: NinjaIdleFidget1
+      name: StandingAimIdle
       takeName: mixamo.com
       internalID: -203655887218126122
       firstFrame: 0
-      lastFrame: 275
+      lastFrame: 113
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
       cycleOffset: 0
       loop: 0
       hasAdditiveReferencePose: 0
-      loopTime: 0
+      loopTime: 1
       loopBlend: 0
       loopBlendOrientation: 1
       loopBlendPositionY: 1
@@ -549,18 +549,18 @@ ModelImporter:
         length: 0
         modified: 0
     skeleton:
-    - name: Kachujin G Rosales(Clone)
+    - name: KachujinGRosales(Clone)
       parentName: 
       position: {x: 0, y: 0, z: 0}
       rotation: {x: 0, y: 0, z: 0, w: 1}
       scale: {x: 1, y: 1, z: 1}
     - name: Kachujin
-      parentName: Kachujin G Rosales(Clone)
+      parentName: KachujinGRosales(Clone)
       position: {x: -0, y: 0, z: 0}
       rotation: {x: 0, y: -0, z: -0, w: 1}
       scale: {x: 1, y: 1, z: 1}
     - name: mixamorig:Hips
-      parentName: Kachujin G Rosales(Clone)
+      parentName: KachujinGRosales(Clone)
       position: {x: -0.0007293723, y: 1.1404332, z: 0.010428437}
       rotation: {x: 3.6500364e-14, y: 0.000000003988351, z: -0.000001003189, w: 1}
       scale: {x: 1, y: 1, z: 1}
