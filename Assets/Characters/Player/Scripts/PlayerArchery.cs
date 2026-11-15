@@ -10,6 +10,8 @@ public class PlayerArchery : MonoBehaviour
     [SerializeField] private Animator fpAnimator;
     [SerializeField] private MeshRenderer fpArrowMeshRenderer;
     [SerializeField] private BowString bowString;
+    [SerializeField] private ArrowProjectile arrowPrefab;
+    [SerializeField] private Transform decorativeArrowTransform;
 
     private PlayerCamera playerCamera;
 
@@ -90,6 +92,21 @@ public class PlayerArchery : MonoBehaviour
     {
         fpArrowMeshRenderer.enabled = false;
         bowString.Release();
+        FireArrow();
+    }
+
+    private void FireArrow()
+    {
+        Vector3 spawnPosition = decorativeArrowTransform.position;
+        Vector3 fireDirection = playerCamera.GetFireDirection(spawnPosition);
+
+        ArrowProjectile arrow = Instantiate(
+            arrowPrefab,
+            spawnPosition,
+            Quaternion.LookRotation(fireDirection)
+        );
+
+        arrow.Launch(fireDirection);
     }
 
     public void CancelArchery()

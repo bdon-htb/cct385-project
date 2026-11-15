@@ -15,6 +15,8 @@ public class PlayerCamera : MonoBehaviour
     [SerializeField] private bool isFirstPerson = true;
     [SerializeField] private float cameraResetSpeed = 350;
     [SerializeField] private float zoomInputThreshold = 0.05f;
+    [SerializeField] private LayerMask aimMask;
+    [SerializeField] private float maxAimDistance = 100f;
 
     [Header("Required References")]
     [SerializeField] private SkinnedMeshRenderer playerMeshRenderer;
@@ -341,5 +343,27 @@ public class PlayerCamera : MonoBehaviour
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
         }
+    }
+
+    public Vector3 GetFireDirection(Vector3 spawnPosition)
+    {
+        Transform cameraTransform = isFirstPerson
+            ? firstPersonCameraTransform
+            : thirdPersonCameraTransform;
+        
+        Vector3 targetPoint = cameraTransform.position
+            + cameraTransform.forward * maxAimDistance;
+        
+        if (Physics.Raycast(
+            cameraTransform.position,
+            cameraTransform.forward,
+            out RaycastHit hit,
+            maxAimDistance,
+            aimMask))
+        {
+            targetPoint = hit.point;
+        }
+
+        return (targetPoint - spawnPosition).normalized;
     }
 }
