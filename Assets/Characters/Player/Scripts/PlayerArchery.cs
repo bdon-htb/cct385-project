@@ -6,12 +6,21 @@ public class PlayerArchery : MonoBehaviour
 {
     [SerializeField] private InputActionAsset inputActions;
     
+    [Header("Gameplay Properties")]
+    [SerializeField] private float minLaunchSpeed = 10f;
+    [SerializeField] private float maxLaunchSpeed = 40f;
+    [SerializeField] private float fullChargeTime = 0.5f;
+    [SerializeField] private AnimationCurve chargeCurve = AnimationCurve.Linear(0f, 0f, 1f, 1f);
+
     [Header("Required References")]
     [SerializeField] private Animator fpAnimator;
     [SerializeField] private MeshRenderer fpArrowMeshRenderer;
     [SerializeField] private BowString bowString;
     [SerializeField] private ArrowPool arrowPool;
     [SerializeField] private Transform decorativeArrowTransform;
+
+    private float chargeTime;
+    private float releaseSpeed;
 
     private PlayerCamera playerCamera;
 
@@ -58,14 +67,39 @@ public class PlayerArchery : MonoBehaviour
 
         if (canDraw && fireAction.WasPressedThisFrame())
         {
+            chargeTime = 0f;
+
             fpAnimator.SetTrigger("Draw");
             state = ArcheryState.Drawing;
             fpArrowMeshRenderer.enabled = true;
         }
-        else if (canFire && !fireAction.IsPressed())
+        else if (canFire)
         {
-            fpAnimator.SetTrigger("Release");
-            state = ArcheryState.Release;
+            if (fireAction.IsPressed())
+            {
+                chargeTime += Time.deltaTime;
+            }
+            else
+            {
+                float chargeFactor = Mathf.Clamp01(chargeTime / fullChargeTime);
+
+                float power = Mathf.Clamp01(chargeCurve.Evaluate(chargeFactor));
+
+                releaseSpeed = Mathf.Lerp(
+                    minLaunchSpeed,
+                    maxLaunchSpeed,
+                    power
+                );
+
+                releaseSpeed = Mathf.Lerp(
+                    minLaunchSpeed,
+                    maxLaunchSpeed,
+                    chargeFactor
+                );
+
+                fpAnimator.SetTrigger("Release");
+                state = ArcheryState.Release;
+            }
         }
     }
 
@@ -105,7 +139,7 @@ public class PlayerArchery : MonoBehaviour
             Quaternion.LookRotation(fireDirection)
         );
 
-        arrow.Launch(fireDirection);
+        arrow.Launch(fireDirection, releaseSpeed);
     }
 
     public void CancelArchery()
@@ -117,6 +151,10 @@ public class PlayerArchery : MonoBehaviour
 
         fpAnimator.Play("ArcheryStandingIdle", 0, 0f);
 
+        chargeTime = 0f;
+        releaseSpeed = 0f;
+
+        fpArrowMeshRenderer.enabled = false;
         bowString.Release();
     }
 }

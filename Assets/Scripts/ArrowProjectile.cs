@@ -3,7 +3,6 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody))]
 public class ArrowProjectile : MonoBehaviour
 {
-    [SerializeField] private float launchSpeed = 40f;
     [SerializeField] private float embedDepth = 0.15f;
     [SerializeField] private Transform arrowTip;
 
@@ -80,8 +79,8 @@ public class ArrowProjectile : MonoBehaviour
         }
     }
 
-    public void Launch(Vector3 direction)
+    public void Launch(Vector3 direction, float speed)
     {
-        rigidBody.linearVelocity = direction.normalized * launchSpeed;
+        rigidBody.linearVelocity = direction.normalized * speed;
     }
 }
