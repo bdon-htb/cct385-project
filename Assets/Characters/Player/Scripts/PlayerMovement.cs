@@ -3,6 +3,7 @@ using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(PlayerCamera))]
 [RequireComponent(typeof(PlayerAnimation))]
+[RequireComponent(typeof(PlayerArchery))]
 [RequireComponent(typeof(CharacterController))]
 public class PlayerMovement : MonoBehaviour
 {
@@ -10,6 +11,7 @@ public class PlayerMovement : MonoBehaviour
 
     private PlayerAnimation playerAnimation;
     private PlayerCamera playerCamera;
+    private PlayerArchery playerArchery;
     private CharacterController characterController;
 
     [Header("Gameplay Properties")]
@@ -59,6 +61,7 @@ public class PlayerMovement : MonoBehaviour
     {
         playerCamera = GetComponent<PlayerCamera>();
         playerAnimation = GetComponent<PlayerAnimation>();
+        playerArchery = GetComponent<PlayerArchery>();
         characterController = GetComponent<CharacterController>();
 
         moveAction = inputActions.FindAction("Player/Move");
@@ -109,7 +112,8 @@ public class PlayerMovement : MonoBehaviour
                 isCrouching = false;
             }
 
-            isSprinting = sprintAction.IsPressed();
+            isSprinting = !playerArchery.IsFiring() && 
+                           sprintAction.IsPressed();
             if (isSprinting)
                 isCrouching = false;
         }

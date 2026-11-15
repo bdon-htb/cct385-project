@@ -137,7 +137,7 @@ public class PlayerCamera : MonoBehaviour
         else
         {
             // First person -> third person.
-            if (zoomInput < -zoomInputThreshold)
+            if (!playerArchery.IsFiring() && zoomInput < -zoomInputThreshold)
                 ToggleCameraPerspective();
         }
 

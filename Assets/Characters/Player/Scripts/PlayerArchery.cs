@@ -18,31 +18,41 @@ public class PlayerArchery : MonoBehaviour
     [SerializeField] private BowString bowString;
     [SerializeField] private ArrowPool arrowPool;
     [SerializeField] private Transform decorativeArrowTransform;
+    [SerializeField] private PlayerBowPosition bowPosition;
 
     private float chargeTime;
     private float releaseSpeed;
 
     private PlayerCamera playerCamera;
 
-    private enum ArcheryState
+    public enum ArcheryState
     {
-        Idle,
+        Unequipped,
+        Equipping,
+        Equipped,
         Drawing,
         Ready,
-        Release
+        Release,
+        Unequipping
     }
 
     // Input actions.
     private InputAction fireAction;
+    private InputAction equipAction;
 
     // Runtime gameplay varables.
-    private ArcheryState state = ArcheryState.Idle;
+    private ArcheryState state = ArcheryState.Unequipped;
+
+    public ArcheryState State => state; 
 
     private void Awake()
     {
         playerCamera = GetComponent<PlayerCamera>();
 
         fireAction = inputActions.FindAction("Player/Fire");
+        equipAction = inputActions.FindAction("Player/Equip");
+
+        bowPosition.SetUnequippedPosition(true);
 
         fpArrowMeshRenderer.enabled = false;
     }
@@ -50,11 +60,13 @@ public class PlayerArchery : MonoBehaviour
     private void OnEnable()
     {
         fireAction.Enable();
+        equipAction.Enable();
     }
 
     private void OnDisable()
     {
         fireAction.Disable();
+        equipAction.Disable();
     }
 
     private void Update()
@@ -62,44 +74,70 @@ public class PlayerArchery : MonoBehaviour
         if (!playerCamera.IsFirstPerson)
             return;
  
-        bool canDraw = state == ArcheryState.Idle;
-        bool canFire = state == ArcheryState.Ready;
-
-        if (canDraw && fireAction.WasPressedThisFrame())
+        switch (state)
         {
-            chargeTime = 0f;
+            case ArcheryState.Unequipped:
+                if (equipAction.WasPressedThisFrame() || fireAction.WasPressedThisFrame())
+                {
+                    state = ArcheryState.Equipping;
+                    
+                    bowPosition.SetHeldPosition();
+                }
+                break;
+            case ArcheryState.Equipping:
+                if (bowPosition.TransitionIsComplete())
+                {
+                    state = ArcheryState.Equipped;
+                }
+                break;
+            case ArcheryState.Equipped:
+                if (fireAction.WasPressedThisFrame())
+                {
+                    state = ArcheryState.Drawing;
+                    
+                    chargeTime = 0f;
+                    bowPosition.SetAimPosition();
+                    fpAnimator.SetTrigger("Draw");
+                    fpArrowMeshRenderer.enabled = true;
+                }
+                else if (equipAction.WasPressedThisFrame())
+                {
+                    state = ArcheryState.Unequipping;
+                    
+                    bowPosition.SetUnequippedPosition();
+                }
+                break;
+            case ArcheryState.Drawing:
+                break;
+            case ArcheryState.Ready:
+                if (fireAction.IsPressed())
+                {
+                    chargeTime += Time.deltaTime;
+                }
+                else
+                {
+                    float chargeFactor = Mathf.Clamp01(chargeTime / fullChargeTime);
 
-            fpAnimator.SetTrigger("Draw");
-            state = ArcheryState.Drawing;
-            fpArrowMeshRenderer.enabled = true;
-        }
-        else if (canFire)
-        {
-            if (fireAction.IsPressed())
-            {
-                chargeTime += Time.deltaTime;
-            }
-            else
-            {
-                float chargeFactor = Mathf.Clamp01(chargeTime / fullChargeTime);
+                    float power = Mathf.Clamp01(chargeCurve.Evaluate(chargeFactor));
 
-                float power = Mathf.Clamp01(chargeCurve.Evaluate(chargeFactor));
+                    releaseSpeed = Mathf.Lerp(
+                        minLaunchSpeed,
+                        maxLaunchSpeed,
+                        power
+                    );
 
-                releaseSpeed = Mathf.Lerp(
-                    minLaunchSpeed,
-                    maxLaunchSpeed,
-                    power
-                );
-
-                releaseSpeed = Mathf.Lerp(
-                    minLaunchSpeed,
-                    maxLaunchSpeed,
-                    chargeFactor
-                );
-
-                fpAnimator.SetTrigger("Release");
-                state = ArcheryState.Release;
-            }
+                    fpAnimator.SetTrigger("Release");
+                    state = ArcheryState.Release;
+                }
+                break;
+            case ArcheryState.Release:
+                break;
+            case ArcheryState.Unequipping:
+                if (bowPosition.TransitionIsComplete())
+                {
+                    state = ArcheryState.Unequipped;
+                }
+                break;
         }
     }
 
@@ -114,11 +152,16 @@ public class PlayerArchery : MonoBehaviour
     {
         if (!playerCamera.IsFirstPerson)
             return;
-        state = ArcheryState.Idle;
+        
+        state = ArcheryState.Equipped;
+        bowPosition.SetHeldPosition();
     }
 
     public void OnBowStringAttach()
     {
+        if (!playerCamera.IsFirstPerson)
+            return;
+
         bowString.BeginDraw();
     }
 
@@ -144,8 +187,6 @@ public class PlayerArchery : MonoBehaviour
 
     public void CancelArchery()
     {
-        state = ArcheryState.Idle;
-
         fpAnimator.ResetTrigger("Draw");
         fpAnimator.ResetTrigger("Release");
 
@@ -156,5 +197,26 @@ public class PlayerArchery : MonoBehaviour
 
         fpArrowMeshRenderer.enabled = false;
         bowString.Release();
+
+        bool wasUnequipped =
+            state == ArcheryState.Unequipped ||
+            state == ArcheryState.Equipping ||
+            state == ArcheryState.Unequipping;
+
+        state = wasUnequipped
+            ? ArcheryState.Unequipped
+            : ArcheryState.Equipped;
+
+        if (wasUnequipped)
+            bowPosition.SetUnequippedPosition(true);
+        else
+            bowPosition.SetHeldPosition(true);
+    }
+
+    public bool IsFiring()
+    {
+        return state == ArcheryState.Drawing ||
+               state == ArcheryState.Ready ||
+               state == ArcheryState.Release;
     }
 }
