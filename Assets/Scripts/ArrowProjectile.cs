@@ -12,7 +12,13 @@ public class ArrowProjectile : MonoBehaviour
 
     private void Awake()
     {
-        rigidBody = GetComponent<Rigidbody>();
+        Initialize();
+    }
+
+    private void Initialize()
+    {
+        if (rigidBody == null)
+            rigidBody = GetComponent<Rigidbody>();
     }
 
     private void FixedUpdate()
@@ -56,6 +62,22 @@ public class ArrowProjectile : MonoBehaviour
 
         // Follow the object if it moves.
         transform.SetParent(collision.transform, true);
+    }
+
+    public void ResetProjectile()
+    {
+        Initialize();
+
+        isEmbedded = false;
+
+        rigidBody.isKinematic = false;
+        rigidBody.linearVelocity = Vector3.zero;
+        rigidBody.angularVelocity = Vector3.zero;
+
+        foreach (Collider col in GetComponentsInChildren<Collider>())
+        {
+            col.enabled = true;
+        }
     }
 
     public void Launch(Vector3 direction)
