@@ -13,4 +13,14 @@ public class ArcheryAnimationEvents : MonoBehaviour
     {
         playerArchery.OnRecoilComplete();
     }
+
+    public void OnBowStringAttach()
+    {
+        playerArchery.OnBowStringAttach();    
+    }
+
+    public void OnBowStringRelease()
+    {
+        playerArchery.OnBowStringRelease();
+    }
 }

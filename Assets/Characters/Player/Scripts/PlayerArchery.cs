@@ -5,7 +5,11 @@ using UnityEngine.InputSystem;
 public class PlayerArchery : MonoBehaviour
 {
     [SerializeField] private InputActionAsset inputActions;
+    
+    [Header("Required References")]
     [SerializeField] private Animator fpAnimator;
+    [SerializeField] private MeshRenderer fpArrowMeshRenderer;
+    [SerializeField] private BowString bowString;
 
     private PlayerCamera playerCamera;
 
@@ -28,6 +32,8 @@ public class PlayerArchery : MonoBehaviour
         playerCamera = GetComponent<PlayerCamera>();
 
         fireAction = inputActions.FindAction("Player/Fire");
+
+        fpArrowMeshRenderer.enabled = false;
     }
 
     private void OnEnable()
@@ -52,6 +58,7 @@ public class PlayerArchery : MonoBehaviour
         {
             fpAnimator.SetTrigger("Draw");
             state = ArcheryState.Drawing;
+            fpArrowMeshRenderer.enabled = true;
         }
         else if (canFire && !fireAction.IsPressed())
         {
@@ -74,6 +81,17 @@ public class PlayerArchery : MonoBehaviour
         state = ArcheryState.Idle;
     }
 
+    public void OnBowStringAttach()
+    {
+        bowString.BeginDraw();
+    }
+
+    public void OnBowStringRelease()
+    {
+        fpArrowMeshRenderer.enabled = false;
+        bowString.Release();
+    }
+
     public void CancelArchery()
     {
         state = ArcheryState.Idle;
@@ -82,5 +100,7 @@ public class PlayerArchery : MonoBehaviour
         fpAnimator.ResetTrigger("Release");
 
         fpAnimator.Play("ArcheryStandingIdle", 0, 0f);
+
+        bowString.Release();
     }
 }
