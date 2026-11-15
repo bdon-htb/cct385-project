@@ -3,11 +3,13 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(PlayerMovement))]
+[RequireComponent(typeof(PlayerArchery))]
 public class PlayerCamera : MonoBehaviour
 {
     [SerializeField] private InputActionAsset inputActions;
 
     private PlayerMovement playerMovement;
+    private PlayerArchery playerArchery;
 
     [Header("Gameplay Properties")]
     [SerializeField] private bool isFirstPerson = true;
@@ -16,7 +18,8 @@ public class PlayerCamera : MonoBehaviour
 
     [Header("Required References")]
     [SerializeField] private SkinnedMeshRenderer playerMeshRenderer;
-    [SerializeField] private SkinnedMeshRenderer playerFPMeshRenderer;
+    [SerializeField] private SkinnedMeshRenderer fpPlayerMeshRenderer;
+    [SerializeField] private SkinnedMeshRenderer fpBowMeshRenderer;
     [SerializeField] private CinemachineBrain cinemachineBrain;
     [SerializeField] private CinemachineCamera firstPersonCamera;
     [SerializeField] private CinemachineCamera thirdPersonCamera;
@@ -67,6 +70,7 @@ public class PlayerCamera : MonoBehaviour
     private void Awake()
     {
         playerMovement = GetComponent<PlayerMovement>();
+        playerArchery = GetComponent<PlayerArchery>();
         
         lookAction = inputActions.FindAction("Player/CameraLook");
         zoomAction = inputActions.FindAction("Player/CameraZoom");
@@ -226,7 +230,8 @@ public class PlayerCamera : MonoBehaviour
         if (newIsFirstPerson)
         {
             playerMeshRenderer.enabled = false;
-            playerFPMeshRenderer.enabled = true;
+            fpPlayerMeshRenderer.enabled = true;
+            fpBowMeshRenderer.enabled = true;
 
             if (!isInitializing)
             {
@@ -282,7 +287,9 @@ public class PlayerCamera : MonoBehaviour
             }
 
             playerMeshRenderer.enabled = true;
-            playerFPMeshRenderer.enabled = false;
+            fpPlayerMeshRenderer.enabled = false;
+            fpBowMeshRenderer.enabled = false;
+            playerArchery.CancelArchery();
         }
 
         firstPersonCamera.enabled = newIsFirstPerson;
