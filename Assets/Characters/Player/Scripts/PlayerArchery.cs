@@ -43,7 +43,7 @@ public class PlayerArchery : MonoBehaviour
     // Runtime gameplay varables.
     private ArcheryState state = ArcheryState.Unequipped;
 
-    public ArcheryState State => state; 
+    public ArcheryState State => state;  
 
     private void Awake()
     {
@@ -72,8 +72,18 @@ public class PlayerArchery : MonoBehaviour
     private void Update()
     {
         if (!playerCamera.IsFirstPerson)
+        {
+            if (equipAction.WasPressedThisFrame())
+            {
+                if (state == ArcheryState.Unequipped)
+                    state = ArcheryState.Equipped;
+                else if (state == ArcheryState.Equipped)
+                    state = ArcheryState.Unequipped;
+            }
+
             return;
- 
+        }
+
         switch (state)
         {
             case ArcheryState.Unequipped:
@@ -187,9 +197,10 @@ public class PlayerArchery : MonoBehaviour
 
     public void CancelArchery()
     {
+        bool wasEquipped = IsHoldingBow();
+
         fpAnimator.ResetTrigger("Draw");
         fpAnimator.ResetTrigger("Release");
-
         fpAnimator.Play("ArcheryStandingIdle", 0, 0f);
 
         chargeTime = 0f;
@@ -198,19 +209,14 @@ public class PlayerArchery : MonoBehaviour
         fpArrowMeshRenderer.enabled = false;
         bowString.Release();
 
-        bool wasUnequipped =
-            state == ArcheryState.Unequipped ||
-            state == ArcheryState.Equipping ||
-            state == ArcheryState.Unequipping;
+        state = wasEquipped
+            ? ArcheryState.Equipped
+            : ArcheryState.Unequipped;
 
-        state = wasUnequipped
-            ? ArcheryState.Unequipped
-            : ArcheryState.Equipped;
-
-        if (wasUnequipped)
-            bowPosition.SetUnequippedPosition(true);
-        else
+        if (wasEquipped)
             bowPosition.SetHeldPosition(true);
+        else
+            bowPosition.SetUnequippedPosition(true);
     }
 
     public bool IsFiring()
@@ -218,5 +224,20 @@ public class PlayerArchery : MonoBehaviour
         return state == ArcheryState.Drawing ||
                state == ArcheryState.Ready ||
                state == ArcheryState.Release;
+    }
+
+    public bool IsHoldingBow()
+    {
+        return state == ArcheryState.Equipping ||
+               state == ArcheryState.Equipped ||
+               IsFiring();
+    }
+
+    public void SyncFirstPersonBow()
+    {
+        if (IsHoldingBow())
+            bowPosition.SetHeldPosition(true);
+        else
+            bowPosition.SetUnequippedPosition(true);
     }
 }

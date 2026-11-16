@@ -22,6 +22,7 @@ public class PlayerCamera : MonoBehaviour
     [SerializeField] private SkinnedMeshRenderer playerMeshRenderer;
     [SerializeField] private SkinnedMeshRenderer fpPlayerMeshRenderer;
     [SerializeField] private SkinnedMeshRenderer fpBowMeshRenderer;
+    [SerializeField] private SkinnedMeshRenderer tpBowMeshRenderer;
     [SerializeField] private CinemachineBrain cinemachineBrain;
     [SerializeField] private CinemachineCamera firstPersonCamera;
     [SerializeField] private CinemachineCamera thirdPersonCamera;
@@ -234,6 +235,9 @@ public class PlayerCamera : MonoBehaviour
             playerMeshRenderer.enabled = false;
             fpPlayerMeshRenderer.enabled = true;
             fpBowMeshRenderer.enabled = true;
+            tpBowMeshRenderer.enabled = false;
+
+            playerArchery.SyncFirstPersonBow();
 
             if (!isInitializing)
             {
@@ -291,6 +295,7 @@ public class PlayerCamera : MonoBehaviour
             playerMeshRenderer.enabled = true;
             fpPlayerMeshRenderer.enabled = false;
             fpBowMeshRenderer.enabled = false;
+            tpBowMeshRenderer.enabled = true;
             playerArchery.CancelArchery();
         }
 
