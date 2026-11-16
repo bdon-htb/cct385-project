@@ -7,6 +7,8 @@ public class PlayerBowAttachment : MonoBehaviour
     [SerializeField] private Transform handSocket;
     [SerializeField] private Transform backSocket;
 
+    public bool IsEquipped => bowTransform.parent == handSocket;
+
     public void SetEquipped(bool equipped)
     {
         Transform socket = equipped ? handSocket : backSocket;

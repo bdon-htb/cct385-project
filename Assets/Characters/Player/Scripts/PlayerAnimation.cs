@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(PlayerMovement))]
@@ -22,6 +23,8 @@ public class PlayerAnimation : MonoBehaviour
     private float fidgetTimer;
     private float nextFidgetTime;
     private bool isHoldingBow;
+    private readonly List<AnimatorClipInfo> attachmentClips = new List<AnimatorClipInfo>();
+    private readonly Dictionary<AnimationClip, float> transferTimes = new Dictionary<AnimationClip, float>();
 
     private void Awake()
     {
@@ -33,6 +36,7 @@ public class PlayerAnimation : MonoBehaviour
     private void Start()
     {
         bowAttachment.SetEquipped(playerArchery.IsHoldingBow());
+        animator.SetBool("BowInHand", bowAttachment.IsEquipped);
         ResetFidgetTimer();
     }
 
@@ -74,6 +78,7 @@ public class PlayerAnimation : MonoBehaviour
         animator.SetBool("IsFalling", isFalling);
 
         animator.SetBool("HoldingBow", isHoldingBow);
+        animator.SetBool("BowInHand", bowAttachment.IsEquipped);
 
         float moveSpeed;
 
@@ -148,6 +153,7 @@ public class PlayerAnimation : MonoBehaviour
             return;
 
         bowAttachment.SetEquipped(true);
+        animator.SetBool("BowInHand", bowAttachment.IsEquipped);
     }
 
     public void OnBowStow()
@@ -159,6 +165,7 @@ public class PlayerAnimation : MonoBehaviour
             return;
 
         bowAttachment.SetEquipped(false);
+        animator.SetBool("BowInHand", bowAttachment.IsEquipped);
     }
 
     private void UpdateBowAttachment()
@@ -175,10 +182,48 @@ public class PlayerAnimation : MonoBehaviour
             ? effectiveState.IsName("EquipBow")
             : effectiveState.IsName("UnequipBow");
 
-        if (shouldDefer)
+        // A reversal can return to this direction after the event has already
+        // passed. Only wait while this playback still has a transfer ahead.
+        if (shouldDefer && bowAttachment.IsEquipped != isHoldingBow &&
+            HasPendingTransfer(effectiveState, isTransitioning))
             return;
 
         bowAttachment.SetEquipped(isHoldingBow);
+        animator.SetBool("BowInHand", bowAttachment.IsEquipped);
+    }
+
+    private bool HasPendingTransfer(AnimatorStateInfo state, bool isTransitioning)
+    {
+        if (isTransitioning)
+            animator.GetNextAnimatorClipInfo(0, attachmentClips);
+        else
+            animator.GetCurrentAnimatorClipInfo(0, attachmentClips);
+
+        foreach (AnimatorClipInfo info in attachmentClips)
+        {
+            AnimationClip clip = info.clip;
+            if (!transferTimes.TryGetValue(clip, out float transferTime))
+            {
+                transferTime = -1f;
+                foreach (AnimationEvent animationEvent in clip.events)
+                {
+                    if (animationEvent.functionName == "OnBowGrab" ||
+                        animationEvent.functionName == "OnBowStow")
+                    {
+                        transferTime = animationEvent.time;
+                        break;
+                    }
+                }
+                transferTimes.Add(clip, transferTime);
+            }
+
+            if (clip.length > 0f && transferTime >= 0f &&
+                state.normalizedTime < transferTime / clip.length)
+                return true;
+        }
+
+        // Missing or already-passed events must never prevent reconciliation.
+        return false;
     }
 
     private bool IsEffectiveAnimation(string stateName)
