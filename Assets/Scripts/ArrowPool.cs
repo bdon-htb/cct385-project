@@ -46,6 +46,8 @@ public class ArrowPool : MonoBehaviour
 
     private void OnReleaseArrow(ArrowProjectile arrow)
     {
+        arrow.OnReturnToPool();
+
         arrow.gameObject.SetActive(false);
         arrow.transform.SetParent(transform);
     }

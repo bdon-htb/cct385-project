@@ -5,6 +5,7 @@ public class ArrowProjectile : MonoBehaviour
 {
     [SerializeField] private float embedDepth = 0.15f;
     [SerializeField] private Transform arrowTip;
+    [SerializeField] private TrailRenderer arrowTrail;
 
     private Rigidbody rigidBody;
     private bool isEmbedded;
@@ -40,6 +41,8 @@ public class ArrowProjectile : MonoBehaviour
 
         isEmbedded = true;
 
+        arrowTrail.emitting = false;
+
         ContactPoint contact = collision.GetContact(0);
 
         // Stop the arrow's physics.
@@ -69,6 +72,9 @@ public class ArrowProjectile : MonoBehaviour
 
         isEmbedded = false;
 
+        arrowTrail.emitting = false;
+        arrowTrail.Clear();
+
         rigidBody.isKinematic = false;
         rigidBody.linearVelocity = Vector3.zero;
         rigidBody.angularVelocity = Vector3.zero;
@@ -81,6 +87,15 @@ public class ArrowProjectile : MonoBehaviour
 
     public void Launch(Vector3 direction, float speed)
     {
+        arrowTrail.Clear();
+        arrowTrail.emitting = true;
+
         rigidBody.linearVelocity = direction.normalized * speed;
+    }
+
+    public void OnReturnToPool()
+    {
+        arrowTrail.emitting = false;
+        arrowTrail.Clear();
     }
 }
