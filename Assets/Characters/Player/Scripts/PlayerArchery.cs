@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -43,7 +44,9 @@ public class PlayerArchery : MonoBehaviour
     // Runtime gameplay varables.
     private ArcheryState state = ArcheryState.Unequipped;
 
-    public ArcheryState State => state;  
+    public ArcheryState State => state;
+
+    public event Action<ArcheryState> OnStateChanged;
 
     private void Awake()
     {
@@ -76,9 +79,9 @@ public class PlayerArchery : MonoBehaviour
             if (equipAction.WasPressedThisFrame())
             {
                 if (state == ArcheryState.Unequipped)
-                    state = ArcheryState.Equipped;
+                    ChangeState(ArcheryState.Equipped);
                 else if (state == ArcheryState.Equipped)
-                    state = ArcheryState.Unequipped;
+                    ChangeState(ArcheryState.Unequipped);
             }
 
             return;
@@ -89,7 +92,7 @@ public class PlayerArchery : MonoBehaviour
             case ArcheryState.Unequipped:
                 if (equipAction.WasPressedThisFrame() || fireAction.WasPressedThisFrame())
                 {
-                    state = ArcheryState.Equipping;
+                    ChangeState(ArcheryState.Equipping);
                     
                     bowPosition.SetHeldPosition();
                 }
@@ -97,13 +100,13 @@ public class PlayerArchery : MonoBehaviour
             case ArcheryState.Equipping:
                 if (bowPosition.TransitionIsComplete())
                 {
-                    state = ArcheryState.Equipped;
+                    ChangeState(ArcheryState.Equipped);
                 }
                 break;
             case ArcheryState.Equipped:
                 if (fireAction.WasPressedThisFrame())
                 {
-                    state = ArcheryState.Drawing;
+                    ChangeState(ArcheryState.Drawing);
                     
                     chargeTime = 0f;
                     bowPosition.SetAimPosition();
@@ -112,7 +115,7 @@ public class PlayerArchery : MonoBehaviour
                 }
                 else if (equipAction.WasPressedThisFrame())
                 {
-                    state = ArcheryState.Unequipping;
+                    ChangeState(ArcheryState.Unequipping);
                     
                     bowPosition.SetUnequippedPosition();
                 }
@@ -137,7 +140,7 @@ public class PlayerArchery : MonoBehaviour
                     );
 
                     fpAnimator.SetTrigger("Release");
-                    state = ArcheryState.Release;
+                    ChangeState(ArcheryState.Release);
                 }
                 break;
             case ArcheryState.Release:
@@ -145,25 +148,34 @@ public class PlayerArchery : MonoBehaviour
             case ArcheryState.Unequipping:
                 if (bowPosition.TransitionIsComplete())
                 {
-                    state = ArcheryState.Unequipped;
+                    ChangeState(ArcheryState.Unequipped);
                 }
                 break;
         }
+    }
+
+    private void ChangeState(ArcheryState newState)
+    {
+        if (state == newState)
+            return;
+
+        state = newState;
+        OnStateChanged?.Invoke(state);
     }
 
     public void OnDrawComplete()
     {
         if (!playerCamera.IsFirstPerson)
             return;
-        state = ArcheryState.Ready;
+        ChangeState(ArcheryState.Ready);
     }
 
     public void OnRecoilComplete()
     {
         if (!playerCamera.IsFirstPerson)
             return;
-        
-        state = ArcheryState.Equipped;
+
+        ChangeState(ArcheryState.Equipped);
         bowPosition.SetHeldPosition();
     }
 
@@ -209,9 +221,10 @@ public class PlayerArchery : MonoBehaviour
         fpArrowMeshRenderer.enabled = false;
         bowString.Release();
 
-        state = wasEquipped
-            ? ArcheryState.Equipped
-            : ArcheryState.Unequipped;
+        if (wasEquipped)
+            ChangeState(ArcheryState.Equipped);
+        else
+            ChangeState(ArcheryState.Unequipped);
 
         if (wasEquipped)
             bowPosition.SetHeldPosition(true);

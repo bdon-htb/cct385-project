@@ -1,3 +1,4 @@
+using System;
 using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -68,7 +69,9 @@ public class PlayerCamera : MonoBehaviour
     public Transform ThirdPersonCameraTransform => thirdPersonCameraTransform;
     public Vector3 ResetCameraForward => resetCameraForward;
     public Vector3 ResetCameraRight => resetCameraRight;
-    
+
+    public event Action<bool> OnPerspectiveChanged;
+
 
     private void Awake()
     {
@@ -302,6 +305,8 @@ public class PlayerCamera : MonoBehaviour
         firstPersonCamera.enabled = newIsFirstPerson;
         thirdPersonCamera.enabled = !newIsFirstPerson;
 
+        if (isFirstPerson != newIsFirstPerson)
+            OnPerspectiveChanged?.Invoke(newIsFirstPerson);
         isFirstPerson = newIsFirstPerson;
 
         if (isInitializing)
