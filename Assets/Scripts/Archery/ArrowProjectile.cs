@@ -9,6 +9,7 @@ public class ArrowProjectile : MonoBehaviour
 
     private Rigidbody rigidBody;
     private bool isEmbedded;
+    private Vector3 firedFrom;
 
     private void Awake()
     {
@@ -38,12 +39,17 @@ public class ArrowProjectile : MonoBehaviour
     {
         if (isEmbedded)
             return;
-
+    
         isEmbedded = true;
 
         arrowTrail.emitting = false;
 
         ContactPoint contact = collision.GetContact(0);
+
+        if (collision.collider.TryGetComponent(out ArcheryTarget target))
+        {
+            target.OnArrowHit(contact.point, firedFrom);
+        }
 
         // Stop the arrow's physics.
         rigidBody.linearVelocity = Vector3.zero;
@@ -85,8 +91,10 @@ public class ArrowProjectile : MonoBehaviour
         }
     }
 
-    public void Launch(Vector3 direction, float speed)
+    public void Launch(Vector3 direction, float speed, Vector3 launchPosition)
     {
+        firedFrom = launchPosition;
+
         arrowTrail.Clear();
         arrowTrail.emitting = true;
 

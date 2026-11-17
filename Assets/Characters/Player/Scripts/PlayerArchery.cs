@@ -204,7 +204,7 @@ public class PlayerArchery : MonoBehaviour
             Quaternion.LookRotation(fireDirection)
         );
 
-        arrow.Launch(fireDirection, releaseSpeed);
+        arrow.Launch(fireDirection, releaseSpeed, transform.position);
     }
 
     public void CancelArchery()
