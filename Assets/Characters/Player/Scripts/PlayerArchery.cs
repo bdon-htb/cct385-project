@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(PlayerCamera))]
+[RequireComponent(typeof(PlayerAudio))]
 public class PlayerArchery : MonoBehaviour
 {
     [SerializeField] private InputActionAsset inputActions;
@@ -25,6 +26,7 @@ public class PlayerArchery : MonoBehaviour
     private float releaseSpeed;
 
     private PlayerCamera playerCamera;
+    private PlayerAudio playerAudio;
 
     public enum ArcheryState
     {
@@ -51,6 +53,7 @@ public class PlayerArchery : MonoBehaviour
     private void Awake()
     {
         playerCamera = GetComponent<PlayerCamera>();
+        playerAudio = GetComponent<PlayerAudio>();
 
         fireAction = inputActions.FindAction("Player/Fire");
         equipAction = inputActions.FindAction("Player/Equip");
@@ -185,12 +188,14 @@ public class PlayerArchery : MonoBehaviour
             return;
 
         bowString.BeginDraw();
+        playerAudio.PlayBowDraw();
     }
 
     public void OnBowStringRelease()
     {
         fpArrowMeshRenderer.enabled = false;
         bowString.Release();
+        playerAudio.PlayBowRelease();
         FireArrow();
     }
 
