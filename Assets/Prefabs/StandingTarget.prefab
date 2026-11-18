@@ -175,7 +175,7 @@ MonoBehaviour:
   bullseye: {fileID: 4086824820725658834}
   scoringRings:
   - radius: 0.12
-    points: 50
+    points: 100
   - radius: 0.3
     points: 25
   - radius: 0.45
@@ -186,10 +186,10 @@ MonoBehaviour:
   - minDistance: 0
     multiplier: 0
   - minDistance: 5
-    multiplier: 0.5
+    multiplier: 1
   - minDistance: 10
     multiplier: 1
   - minDistance: 20
-    multiplier: 1.5
+    multiplier: 1
   - minDistance: 30
-    multiplier: 2
+    multiplier: 1
