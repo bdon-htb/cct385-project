@@ -4,8 +4,12 @@ using UnityEngine;
 public class ArrowProjectile : MonoBehaviour
 {
     [SerializeField] private float embedDepth = 0.15f;
+    [SerializeField] private SoundEffect[] impactSFX;
+
+    [Header("Required References")]
     [SerializeField] private Transform arrowTip;
     [SerializeField] private TrailRenderer arrowTrail;
+    [SerializeField] private AudioSource audioSource;
 
     private Rigidbody rigidBody;
     private bool isEmbedded;
@@ -14,6 +18,11 @@ public class ArrowProjectile : MonoBehaviour
     private void Awake()
     {
         Initialize();
+
+        foreach (SoundEffect sfx in impactSFX)
+        {
+            sfx.Initialize(audioSource);
+        }
     }
 
     private void Initialize()
@@ -70,6 +79,14 @@ public class ArrowProjectile : MonoBehaviour
 
         // Follow the object if it moves.
         transform.SetParent(collision.transform, true);
+
+        PlayImpactSound();
+    }
+
+    private void PlayImpactSound()
+    {
+        SoundEffect sfx = impactSFX[Random.Range(0, impactSFX.Length)];
+        sfx.PlaySound();
     }
 
     public void ResetProjectile()

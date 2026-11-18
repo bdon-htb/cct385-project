@@ -3,11 +3,15 @@ using UnityEngine;
 
 [RequireComponent(typeof(PlayerMovement))]
 [RequireComponent(typeof(PlayerArchery))]
+[RequireComponent(typeof(PlayerAudio))]
+[RequireComponent(typeof(PlayerCamera))]
 [RequireComponent(typeof(Animator))]
 public class PlayerAnimation : MonoBehaviour
 {
     private PlayerMovement playerMovement;
     private PlayerArchery playerArchery;
+    private PlayerAudio playerAudio;
+    private PlayerCamera playerCamera;
     private Animator animator;
 
     [Header("Required References")]
@@ -19,17 +23,24 @@ public class PlayerAnimation : MonoBehaviour
     // How long the player should be falling for before starting the fall animation.
     [SerializeField] float fallingTimeThreshold = 0.35f;
 
+    [Header("Audio Properties")]
+    [SerializeField, Min(0f)] private float minFootstepDelay = 0.15f;
+
     private float airborneTime;
     private float fidgetTimer;
     private float nextFidgetTime;
     private bool isHoldingBow;
     private readonly List<AnimatorClipInfo> attachmentClips = new List<AnimatorClipInfo>();
     private readonly Dictionary<AnimationClip, float> transferTimes = new Dictionary<AnimationClip, float>();
+    private float nextFootstepTime;
 
     private void Awake()
     {
         playerMovement = GetComponent<PlayerMovement>();
         playerArchery = GetComponent<PlayerArchery>();
+        playerAudio = GetComponent<PlayerAudio>();
+        playerCamera = GetComponent<PlayerCamera>();
+
         animator = GetComponent<Animator>();
     }
 
@@ -166,6 +177,20 @@ public class PlayerAnimation : MonoBehaviour
 
         bowAttachment.SetEquipped(false);
         animator.SetBool("BowInHand", bowAttachment.IsEquipped);
+    }
+
+    public void OnFootstep()
+    {
+        // PlayerMovement handles first person footstep logic.
+        
+        if (playerCamera.IsFirstPerson ||
+            !playerMovement.IsGrounded ||
+            playerMovement.MoveInput.sqrMagnitude < 0.001f ||
+            Time.time < nextFootstepTime)
+            return;
+
+        playerAudio.PlayFootstep();
+        nextFootstepTime = Time.time + minFootstepDelay;
     }
 
     private void UpdateBowAttachment()

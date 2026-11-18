@@ -4,6 +4,7 @@ using UnityEngine.InputSystem;
 [RequireComponent(typeof(PlayerCamera))]
 [RequireComponent(typeof(PlayerAnimation))]
 [RequireComponent(typeof(PlayerArchery))]
+[RequireComponent(typeof(PlayerAudio))]
 [RequireComponent(typeof(CharacterController))]
 public class PlayerMovement : MonoBehaviour
 {
@@ -12,6 +13,7 @@ public class PlayerMovement : MonoBehaviour
     private PlayerAnimation playerAnimation;
     private PlayerCamera playerCamera;
     private PlayerArchery playerArchery;
+    private PlayerAudio playerAudio;
     private CharacterController characterController;
 
     [Header("Gameplay Properties")]
@@ -27,6 +29,11 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float walkRotationSpeed = 5f;
     [SerializeField] private float sprintRotationSpeed = 10f;
     [SerializeField] private float jumpForce = 6f;
+
+    [Header("Audio Properties")]
+    [SerializeField] private float footstepDistance = 1.5f;
+    [SerializeField] private float sprintFootstepDistance = 3f;
+    [SerializeField] private float minLandingAirborneTime = 0.3f;
 
     // Input actions
     private InputAction moveAction;
@@ -47,6 +54,10 @@ public class PlayerMovement : MonoBehaviour
 
     private Vector3 HorizontalVelocity =>
         new Vector3(playerVelocity.x, 0f, playerVelocity.z);
+    
+    private float distanceSinceFootstep;
+    private Vector3 previousPosition;
+    private float airborneTime;
 
     public bool IsSprinting => isSprinting;
     public bool IsCrouching => isCrouching;
@@ -62,12 +73,16 @@ public class PlayerMovement : MonoBehaviour
         playerCamera = GetComponent<PlayerCamera>();
         playerAnimation = GetComponent<PlayerAnimation>();
         playerArchery = GetComponent<PlayerArchery>();
+        playerAudio = GetComponent<PlayerAudio>();
+    
         characterController = GetComponent<CharacterController>();
 
         moveAction = inputActions.FindAction("Player/Move");
         crouchAction = inputActions.FindAction("Player/Crouch");
         sprintAction = inputActions.FindAction("Player/Sprint");
         jumpAction = inputActions.FindAction("Player/Jump");
+
+        previousPosition = transform.position;
     }
 
     private void OnEnable()
@@ -129,12 +144,24 @@ public class PlayerMovement : MonoBehaviour
 
         bool isGroundedNow = IsGrounded;
 
-        if (isGroundedNow && !wasGrounded && hasLaunchedJump)
+        if (isGroundedNow)
         {
-            hasLaunchedJump = false;
+            if (!wasGrounded && airborneTime >= minLandingAirborneTime)
+                playerAudio.PlayLanding();
+
+            airborneTime = 0f;
+        }
+        else
+        {
+            airborneTime += Time.deltaTime;
         }
 
+        if (isGroundedNow && !wasGrounded)
+            hasLaunchedJump = false;
+
         wasGrounded = isGroundedNow;
+
+        HandleFirstPersonFootsteps();
     }
 
     private float GetMovementSpeed()
@@ -288,6 +315,33 @@ public class PlayerMovement : MonoBehaviour
 
             if (playerVelocity.y < -maxFallSpeed)
                 playerVelocity.y = -maxFallSpeed;
+        }
+    }
+
+    private void HandleFirstPersonFootsteps()
+    {
+        Vector3 displacement = transform.position - previousPosition;
+        displacement.y = 0f;
+
+        previousPosition = transform.position;
+
+        if (!playerCamera.IsFirstPerson || !IsGrounded)
+        {
+            distanceSinceFootstep = 0f;
+            return;
+        }
+
+        if (displacement.sqrMagnitude < 0.000001f)
+            return;
+
+        distanceSinceFootstep += displacement.magnitude;
+
+        float distanceThreshold = IsSprinting ? sprintFootstepDistance : footstepDistance;
+
+        if (distanceSinceFootstep >= distanceThreshold)
+        {
+            playerAudio.PlayFootstep();
+            distanceSinceFootstep %= distanceThreshold;
         }
     }
 }

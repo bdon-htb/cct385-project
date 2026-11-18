@@ -868,6 +868,8 @@ MonoBehaviour:
   walkRotationSpeed: 5
   sprintRotationSpeed: 10
   jumpForce: 6
+  footstepDistance: 1.25
+  sprintFootstepDistance: 3
 --- !u!114 &6126476643755252169
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -884,6 +886,7 @@ MonoBehaviour:
   minFidgetDelay: 30
   maxFidgetDelay: 60
   fallingTimeThreshold: 0.35
+  minFootstepDelay: 0.15
 --- !u!114 &1805397341955965905
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -975,15 +978,29 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerAudio
   audioSource: {fileID: 8794442544676682216}
-  pitchVariation: 0.05
   bowDraw:
     clip: {fileID: 8300000, guid: 0988e1a7089d1754aa221304047490a0, type: 3}
-    volume: 1
-    pitch: 1
+    volume: 0.5
+    pitch: 1.25
+    pitchVariation: 0.05
   bowRelease:
     clip: {fileID: 8300000, guid: b8dd1552cd2d91945b0e762dc05c67d9, type: 3}
-    volume: 1
+    volume: 0.5
     pitch: 1
+    pitchVariation: 0.05
+  footsteps:
+  - clip: {fileID: 8300000, guid: 505361cff545ee8418c2bba6741afbb4, type: 3}
+    volume: 0.15
+    pitch: 1
+    pitchVariation: 0.05
+  - clip: {fileID: 8300000, guid: 9e1769ff6f43e144ba50cb7c00f2c6ff, type: 3}
+    volume: 0.15
+    pitch: 1
+    pitchVariation: 0.05
+  - clip: {fileID: 8300000, guid: f752e3031961c984aad5a4b4b47570f8, type: 3}
+    volume: 0.15
+    pitch: 1
+    pitchVariation: 0.05
 --- !u!4 &8133202081671189556 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8021001004253913084, guid: d2900edbcd4c17749afbde141b71bb32, type: 3}
