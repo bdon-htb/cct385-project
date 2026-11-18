@@ -5,6 +5,7 @@ public class ArrowProjectile : MonoBehaviour
 {
     [SerializeField] private float embedDepth = 0.15f;
     [SerializeField] private SoundEffect[] impactSFX;
+    [SerializeField] private GameObject impactEffectPrefab;
 
     [Header("Required References")]
     [SerializeField] private Transform arrowTip;
@@ -58,6 +59,15 @@ public class ArrowProjectile : MonoBehaviour
         if (collision.collider.TryGetComponent(out ArcheryTarget target))
         {
             target.OnArrowHit(contact.point, firedFrom);
+        }
+
+        if (impactEffectPrefab != null)
+        {
+            Instantiate(
+                impactEffectPrefab,
+                contact.point + contact.normal * 0.01f,
+                Quaternion.LookRotation(contact.normal)
+            );
         }
 
         // Stop the arrow's physics.

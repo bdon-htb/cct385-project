@@ -425,6 +425,7 @@ MonoBehaviour:
     volume: 1
     pitch: 1
     pitchVariation: 0.05
+  impactEffectPrefab: {fileID: 6928578756414825593, guid: 429aa6535da38404fabcfd8cc152801d, type: 3}
   arrowTip: {fileID: 5389289831926640462}
   arrowTrail: {fileID: 1717384086759031541}
   audioSource: {fileID: 8283654965738407200}
