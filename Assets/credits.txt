@@ -1,4 +1,4 @@
-Animation sources:
+Player Model & Animation:
 https://www.mixamo.com
 
 Textures:
@@ -11,5 +11,41 @@ https://polyhaven.com/a/plastered_wall
 Tatami Mat (CC0)
 https://polyhaven.com/a/tatami_mat
 
+Rubberized Track (CC0)
+https://polyhaven.com/a/rubberized_track
+
 Shoji Paper (CC0)
 https://www.texturecan.com/details/280/
+
+Bow Model (CC0) by Gintoki1234
+https://skfb.ly/oytQQ
+
+Low-Poly Arrow v2.0 by Teslov
+https://skfb.ly/oLS6V
+
+Archery Target by Arkikon
+https://skfb.ly/onQWU
+
+Korean Calligraphy Font by hijoju
+https://www.fontspace.com/korean-calligraphy-font-f7309
+
+Yuji Ma Font by Kinuta Font Factory
+https://fonts.google.com/specimen/Yuji+Mai
+
+FPS Cursor Images by para
+https://opengameart.org/content/64-crosshairs-pack
+
+"Kyudo" sound effect sampled from Black Belt Trader's video
+https://youtu.be/maMnRvJVih8
+
+Bow Release by sgossner
+https://freesound.org/people/sgossner/sounds/209399/
+
+Bow Drawn by Paveroux
+https://freesound.org/people/Paveroux/sounds/490556/
+
+02658 single arrows.wav (Arrow hit sfx) by Robinhood76
+https://freesound.org/people/Robinhood76/sounds/126464/
+
+Wood Footstep Sounds by marb7e
+https://freesound.org/people/marb7e/packs/34203/
